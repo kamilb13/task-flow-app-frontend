@@ -1,14 +1,28 @@
-// import './App.css'
-
+import React from 'react';
+import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
 import Login from "./Components/Login.tsx";
+import Register from "./Components/Register.tsx";
 
-function App() {
+const App: React.FC = () => {
+    return (
+        <Router>
+            <div>
+                {/*<nav>*/}
+                {/*    <ul>*/}
+                {/*        <li><Link to="/">Home</Link></li>*/}
+                {/*        <li><Link to="/about">About</Link></li>*/}
+                {/*        <li><Link to="/login">Login</Link></li>*/}
+                {/*    </ul>*/}
+                {/*</nav>*/}
 
-  return (
-    <>
-        <Login/>
-    </>
-  )
-}
+                <Routes>
+                    <Route path="/" element={<Login />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                </Routes>
+            </div>
+        </Router>
+    );
+};
 
-export default App
+export default App;
