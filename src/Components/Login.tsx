@@ -1,14 +1,29 @@
-import React, { useState, FormEvent } from 'react';
+import React, {useState, FormEvent, useEffect} from 'react';
+import {Link} from "react-router-dom";
+import axios from "axios";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
+    const [response, setResponse] = useState<any>(null);
 
-    const handleLogin = (e: FormEvent) => {
+    const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
-        // logika logowania
+        try{
+            const res = await axios.post("http://localhost:8080/login", {
+                username: username,
+                password: password,
+            });
+            setResponse(res.data);
+        }catch(e){
+            console.log(e);
+        }
         console.log('Zalogowano:', username, password);
     };
+
+    useEffect(() => {
+        alert(JSON.stringify(response));
+    }, [response]);
 
     return (
         <div className="login d-flex justify-content-center align-items-center min-vh-100" style={{ background: 'linear-gradient(to right, #9bb2e5, #698cbf)' }}>
@@ -41,8 +56,7 @@ const Login: React.FC = () => {
                         Zaloguj
                     </button>
                 </form>
-                <div className="mt-4">Nie masz konta? <a href="http://">Załóż konto</a></div>
-
+                <div className="mt-4">Nie masz konta? <Link to="/register">Załóż konto</Link></div>
             </div>
         </div>
     );
