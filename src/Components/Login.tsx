@@ -1,11 +1,14 @@
 import React, {useState, FormEvent, useEffect} from 'react';
 import {Link} from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 import axios from "axios";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [response, setResponse] = useState<any>(null);
+    const [error, setError] = useState<string>(null);
+    const navigate = useNavigate();
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
@@ -15,20 +18,29 @@ const Login: React.FC = () => {
                 password: password,
             });
             setResponse(res.data);
-        }catch(e){
-            console.log(e);
+            localStorage.setItem("token", res.data.token);
+            localStorage.setItem("userid", res.data.userId);
+            navigate("/dashboard");
+            setError(null);
+        }catch(error){
+            if (axios.isAxiosError(error)) {
+                if (error.response?.status === 401) {
+                    console.error("Błąd 401: Nieautoryzowany. Sprawdź login i hasło.");
+                    setError("Nieprawidłowy login lub hasło.");
+                } else {
+                    console.error("Wystąpił inny błąd:", error.response?.status);
+                }
+            } else {
+                console.error("Nieznany błąd:", error);
+            }
         }
-        console.log('Zalogowano:', username, password);
     };
-
-    useEffect(() => {
-        alert(JSON.stringify(response));
-    }, [response]);
 
     return (
         <div className="login d-flex justify-content-center align-items-center min-vh-100" style={{ background: 'linear-gradient(to right, #9bb2e5, #698cbf)' }}>
             <div className="bg-light p-5 rounded-lg shadow-lg rounded" style={{width: '100%', maxWidth: '400px'}}>
                 <h2 className="text-center text-primary mb-4">Logowanie</h2>
+                {error ? <p style={{color: "#ff0000"}}><b>{error}</b></p> : null}
                 <form onSubmit={handleLogin}>
                     <div className="mb-3">
                         <label htmlFor="username" className="form-label">Nazwa użytkownika:</label>
