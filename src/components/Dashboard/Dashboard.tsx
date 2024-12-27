@@ -1,13 +1,17 @@
 import React, {useEffect, useState} from 'react';
 import axios from "axios";
-import {Link} from "react-router-dom";
-import {Modal, Button, Form} from 'react-bootstrap';
+import {Modal, Button, Form, Container, Image} from 'react-bootstrap';
 import axiosInstance from "../../api/axiosInstance.tsx";
 
 const Dashboard = () => {
     const [boards, setBoards] = useState([]);
     const [showModal, setShowModal] = useState(false);
     const [boardName, setBoardName] = useState('');
+    const [showModalAvatar, setShowModalAvatar] = useState(false);
+
+    const toggleModalAvatar = () => {
+        setShowModalAvatar(!showModalAvatar);
+    };
 
     const toggleModal = () => {
         setShowModal(!showModal);
@@ -73,12 +77,60 @@ const Dashboard = () => {
 
     return (
         <div className="dashboard">
-            <nav style={{display: "flex", justifyContent: "space-around"}}>
-                <Link to="/">Home</Link>
-                <Link to="/about">About</Link>
-                <Link to="/login">Logout</Link>
-            </nav>
-            <h1>Dashboard</h1>
+            <div
+                style={{
+                    display: "flex",
+                    backgroundColor: "#f8f8f8",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    padding: "10px"
+                }}
+            >
+                <h1>Dashboard</h1>
+                <Form>
+                    <Form.Group controlId="exampleInput" className="mb-3">
+                        <Form.Control
+                            type="text"
+                            placeholder="Search something"
+                            className="shadow-sm"
+                        />
+                    </Form.Group>
+                </Form>
+                <div style={{position: "relative"}}>
+                    <Image
+                        src="https://via.placeholder.com/150"
+                        roundedCircle
+                        alt="Avatar"
+                        style={{width: "100px", height: "100px", cursor: "pointer"}}
+                        className="shadow-sm"
+                        onClick={toggleModalAvatar}
+                    />
+                    {showModalAvatar && (
+                        <div
+                            style={{
+                                position: "absolute",
+                                top: "110px",
+                                right: "0",
+                                backgroundColor: "#fff",
+                                boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+                                borderRadius: "5px",
+                                padding: "10px",
+                                zIndex: 1000,
+                                width: "200px"
+                            }}
+                        >
+                            <p style={{margin: "10px 0", cursor: "pointer"}}>Profile</p>
+                            <p style={{margin: "10px 0", cursor: "pointer"}}>Settings</p>
+                            <p
+                                style={{margin: "10px 0", cursor: "pointer", color: "red"}}
+                                onClick={() => alert("Logged out")}
+                            >
+                                Logout
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </div>
             <Button variant="primary" onClick={toggleModal} size="lg">Add board</Button>
             <Modal show={showModal} onHide={toggleModal}>
                 <Modal.Header closeButton>

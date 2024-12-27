@@ -1,4 +1,4 @@
-import React, {useState, FormEvent, useEffect} from 'react';
+import React, {useState, FormEvent} from 'react';
 import {Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
@@ -7,11 +7,15 @@ import axiosInstance from "../../api/axiosInstance.tsx";
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [error, setError] = useState<string>(null);
+    const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
+        if(username.length < 5 || password.length < 5) {
+            setError("Złe dane!");
+            return;
+        }
         try{
             const res = await axiosInstance.post("/login", {
                 username,

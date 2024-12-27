@@ -1,19 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Sidebar.css';
 
 const Sidebar: React.FC = () => {
-    const [isOpen, setIsOpen] = useState<boolean>(true);
-
-    const toggleSidebar = (): void => {
-        setIsOpen(!isOpen);
-    };
 
     return (
         <>
-            <button className="toggle-btn" onClick={toggleSidebar}>
-                {isOpen ? 'Close' : 'Open'} Sidebar
-            </button>
-            <div className={`sidebar ${isOpen ? 'open' : 'closed'}`}>
+            <div className="sidebar">
                 <ul>
                     <li>Home</li>
                     <li>About</li>

@@ -6,8 +6,10 @@ import './HomePage.css';
 const HomePage = () => {
     return (
         <div className="main-container">
-            <Sidebar />
-            <Dashboard />
+            <div className="content">
+                <Sidebar/>
+                <Dashboard/>
+            </div>
         </div>
     );
 }
