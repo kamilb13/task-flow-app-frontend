@@ -1,8 +1,8 @@
 import React from 'react';
 import {BrowserRouter as Router, Link, Route, Routes} from 'react-router-dom';
-import Login from "./Components/Login.tsx";
-import Register from "./Components/Register.tsx";
-import Dashboard from "./Components/Dashboard.tsx";
+import Login from "./pages/Login/Login.tsx";
+import Register from "./pages/Register/Register.tsx";
+import HomePage from "./pages/HomePage/HomePage.tsx";
 
 const App: React.FC = () => {
     return (
@@ -12,7 +12,8 @@ const App: React.FC = () => {
                     <Route path="/" element={<Login />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
+                    <Route path="/main" element={<HomePage />} />
+                    {/*<Route path="/dashboard" element={<Dashboard />} />*/}
                 </Routes>
             </div>
         </Router>

@@ -2,25 +2,26 @@ import React, {useState, FormEvent, useEffect} from 'react';
 import {Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import axios from "axios";
+import axiosInstance from "../../api/axiosInstance.tsx";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
-    const [response, setResponse] = useState<any>(null);
     const [error, setError] = useState<string>(null);
     const navigate = useNavigate();
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
         try{
-            const res = await axios.post("http://localhost:8080/login", {
-                username: username,
-                password: password,
+            const res = await axiosInstance.post("/login", {
+                username,
+                password,
             });
-            setResponse(res.data);
+
             localStorage.setItem("token", res.data.token);
             localStorage.setItem("userid", res.data.userId);
-            navigate("/dashboard");
+
+            navigate("/main");
             setError(null);
         }catch(error){
             if (axios.isAxiosError(error)) {
