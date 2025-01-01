@@ -47,12 +47,13 @@ const Dashboard = () => {
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        console.log("handleFormSubmit");
+        if(boardName === ''){
+            return;
+        }
         const newBoard = {
             name: boardName,
             boardCreatorId: localStorage.getItem("userid"),
         };
-
         try {
             const response = await axios.post('http://localhost:8080/create-board', newBoard);
             if (response.status === 201) {
@@ -84,10 +85,8 @@ const Dashboard = () => {
 
     const handleEditBoard = async () => {
         const token = localStorage.getItem("token");
-        console.log("boardId", boardToEditId);
-        console.log("token", token);
         try {
-            const res = await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
+            const response = await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
                 {
                     name: boardName
                 },
@@ -97,8 +96,11 @@ const Dashboard = () => {
                     },
                 }
             );
-
-            fetchBoards();
+            if (response.status === 200) {
+                toggleModalEditBoard();
+                setBoardName('');
+                fetchBoards();
+            }
         } catch (error) {
             console.error('Error deleting board:', error);
         }
@@ -169,8 +171,12 @@ const Dashboard = () => {
                     <Form>
                         <Form.Group controlId="boardName">
                             <Form.Label>Board Name</Form.Label>
-                            <Form.Control onChange={(e) => setBoardName(e.target.value)} type="text"
-                                          placeholder="Enter board name" required/>
+                            <Form.Control
+                                onChange={(e) => setBoardName(e.target.value)}
+                                type="text"
+                                placeholder="Enter board name"
+                                required
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -191,8 +197,13 @@ const Dashboard = () => {
                     <Form>
                         <Form.Group controlId="boardName">
                             <Form.Label>Board Name</Form.Label>
-                            <Form.Control onChange={(e) => setBoardName(e.target.value)} type="text"
-                                          placeholder="Enter board name" required/>
+                            <Form.Control
+                                value={boardName}
+                                onChange={(e) => setBoardName(e.target.value)}
+                                type="text"
+                                placeholder="Enter board name"
+                                required
+                            />
                         </Form.Group>
                     </Form>
                 </Modal.Body>
@@ -201,7 +212,7 @@ const Dashboard = () => {
                         Close
                     </Button>
                     <Button variant="primary" type="submit" form="boardForm" onClick={handleEditBoard}>
-                        Submit
+                        Edit Board
                     </Button>
                 </Modal.Footer>
             </Modal>
@@ -214,7 +225,8 @@ const Dashboard = () => {
                         </Button>
                         <Button variant="primary" onClick={() => {
                             toggleModalEditBoard();
-                            setBoardToEditId(board.id)
+                            setBoardToEditId(board.id);
+                            setBoardName(board.name);
                         }} size="lg">Edit board</Button>
                     </li>
                 )) : <p>Brak boards</p>}
