@@ -7,10 +7,10 @@ const Sidebar: React.FC = () => {
         <>
             <div className="sidebar">
                 <ul>
-                    <li>Home</li>
-                    <li>About</li>
-                    <li>Services</li>
-                    <li>Contact</li>
+                    <a href="/main"><li>Home</li></a>
+                    <a href="/"><li>Add board</li></a>
+                    <a href="/"><li>List of your projects</li></a>
+                    <a href="/"><li>Log out</li></a>
                 </ul>
             </div>
         </>

@@ -8,9 +8,15 @@ const Dashboard = () => {
     const [showModal, setShowModal] = useState(false);
     const [boardName, setBoardName] = useState('');
     const [showModalAvatar, setShowModalAvatar] = useState(false);
+    const [showModalEditBoard, setShowModalEditBoard] = useState(false);
+    const [boardToEditId, setBoardToEditId] = useState();
 
     const toggleModalAvatar = () => {
         setShowModalAvatar(!showModalAvatar);
+    };
+
+    const toggleModalEditBoard = () => {
+        setShowModalEditBoard(!showModalEditBoard);
     };
 
     const toggleModal = () => {
@@ -61,14 +67,37 @@ const Dashboard = () => {
 
     const handleDeleteBoard = async (boardId) => {
         const token = localStorage.getItem("token");
-
         try {
             const res = await axiosInstance.delete(`/delete-board`, {
+                data: {
+                    id: boardId
+                },
                 headers: {
                     Authorization: `Bearer ${token}`,
-                },
-                data: {id: boardId}
+                }
             });
+            fetchBoards();
+        } catch (error) {
+            console.error('Error deleting board:', error);
+        }
+    }
+
+    const handleEditBoard = async () => {
+        const token = localStorage.getItem("token");
+        console.log("boardId", boardToEditId);
+        console.log("token", token);
+        try {
+            const res = await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
+                {
+                    name: boardName
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+
             fetchBoards();
         } catch (error) {
             console.error('Error deleting board:', error);
@@ -98,7 +127,7 @@ const Dashboard = () => {
                 </Form>
                 <div style={{position: "relative"}}>
                     <Image
-                        src="https://via.placeholder.com/150"
+                        src="../../public/avatar.png"
                         roundedCircle
                         alt="Avatar"
                         style={{width: "100px", height: "100px", cursor: "pointer"}}
@@ -154,6 +183,28 @@ const Dashboard = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showModalEditBoard} onHide={toggleModalEditBoard}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit Board</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="boardName">
+                            <Form.Label>Board Name</Form.Label>
+                            <Form.Control onChange={(e) => setBoardName(e.target.value)} type="text"
+                                          placeholder="Enter board name" required/>
+                        </Form.Group>
+                    </Form>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={toggleModalEditBoard}>
+                        Close
+                    </Button>
+                    <Button variant="primary" type="submit" form="boardForm" onClick={handleEditBoard}>
+                        Submit
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <ol>
                 {boards ? boards.map((board) => (
                     <li style={{border: "2px solid green", padding: "10px", margin: "5px"}} key={board.id}>
@@ -161,6 +212,10 @@ const Dashboard = () => {
                         <Button variant="danger" size="sm" onClick={() => handleDeleteBoard(board.id)}>
                             Delete
                         </Button>
+                        <Button variant="primary" onClick={() => {
+                            toggleModalEditBoard();
+                            setBoardToEditId(board.id)
+                        }} size="lg">Edit board</Button>
                     </li>
                 )) : <p>Brak boards</p>}
             </ol>
