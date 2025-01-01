@@ -216,21 +216,43 @@ const Dashboard = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
-            <ol>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '20px'}}>
                 {boards ? boards.map((board) => (
-                    <li style={{border: "2px solid green", padding: "10px", margin: "5px"}} key={board.id}>
-                        ID: {board.id}, Nazwa: {board.name}, ID creatora: {board.boardCreatorId}
-                        <Button variant="danger" size="sm" onClick={() => handleDeleteBoard(board.id)}>
+                    <div
+                        key={board.id}
+                        style={{
+                            border: "1px solid #ddd",
+                            borderRadius: "8px",
+                            boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
+                            padding: "15px",
+                            backgroundColor: "#f9f9f9",
+                            textAlign: "center"
+                        }}
+                    >
+                        <h5 style={{margin: "10px 0", color: "#333"}}>Nazwa: {board.name}</h5>
+                        <p style={{margin: "5px 0", fontSize: "14px", color: "#555"}}>
+                            ID: {board.id} <br/> ID creatora: {board.boardCreatorId}
+                        </p>
+                        <Button variant="danger" size="sm" onClick={() => handleDeleteBoard(board.id)}
+                                style={{margin: "5px"}}>
                             Delete
                         </Button>
-                        <Button variant="primary" onClick={() => {
-                            toggleModalEditBoard();
-                            setBoardToEditId(board.id);
-                            setBoardName(board.name);
-                        }} size="lg">Edit board</Button>
-                    </li>
+                        <Button
+                            variant="primary"
+                            size="sm"
+                            onClick={() => {
+                                toggleModalEditBoard();
+                                setBoardToEditId(board.id);
+                                setBoardName(board.name);
+                            }}
+                            style={{margin: "5px"}}
+                        >
+                            Edit board
+                        </Button>
+                    </div>
                 )) : <p>Brak boards</p>}
-            </ol>
+            </div>
+
         </div>
     )
 }
