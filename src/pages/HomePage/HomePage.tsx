@@ -1,5 +1,5 @@
 import React from 'react';
-import Dashboard from "../../components/Dashboard/Dashboard.tsx";
+import {Outlet} from 'react-router-dom';
 import Sidebar from "../../components/Sidebar/Sidebar.tsx";
 import './HomePage.css';
 
@@ -8,7 +8,7 @@ const HomePage = () => {
         <div className="main-container">
             <div className="content">
                 <Sidebar/>
-                <Dashboard/>
+                <Outlet/>
             </div>
         </div>
     );

@@ -1,15 +1,18 @@
 import React, {useEffect, useState} from 'react';
-import axios from "axios";
-import {Modal, Button, Form, Container, Image} from 'react-bootstrap';
-import axiosInstance from "../../api/axiosInstance.tsx";
+import {Modal, Button, Form, Image} from 'react-bootstrap';
+import {createBoard, deleteBoard, editBoard, fetchBoards} from "../../api/boards.tsx";
 
 const Dashboard = () => {
     const [boards, setBoards] = useState([]);
     const [showModal, setShowModal] = useState(false);
-    const [boardName, setBoardName] = useState('');
+    const [boardName, setBoardName] = useState<string | null>('');
     const [showModalAvatar, setShowModalAvatar] = useState(false);
     const [showModalEditBoard, setShowModalEditBoard] = useState(false);
     const [boardToEditId, setBoardToEditId] = useState();
+
+    useEffect(() => {
+        fetchBoardsData();
+    }, []);
 
     const toggleModalAvatar = () => {
         setShowModalAvatar(!showModalAvatar);
@@ -19,91 +22,47 @@ const Dashboard = () => {
         setShowModalEditBoard(!showModalEditBoard);
     };
 
-    const toggleModal = () => {
+    const toggleModalCreateBoard = () => {
         setShowModal(!showModal);
     };
 
-    const fetchBoards = async () => {
-        try {
-            const token = localStorage.getItem("token");
-            const userId = localStorage.getItem("userid");
-
-            const res = await axiosInstance.get("/get-boards", {
-                params: {userId},
-                headers: {
-                    Authorization: `Bearer ${token}`
-                },
-                //withCredentials: true
-            });
-            setBoards(res.data);
-        } catch (e) {
-            console.error("Błąd podczas pobierania boards:", e);
-        }
+    const fetchBoardsData = async () => {
+        const boards = await fetchBoards();
+        setBoards(boards);
     };
-
-    useEffect(() => {
-        fetchBoards();
-    }, []);
 
     const handleFormSubmit = async (e) => {
         e.preventDefault();
-        if(boardName === ''){
+        const userId = localStorage.getItem("userid");
+        if (boardName === '') {
             return;
         }
         const newBoard = {
             name: boardName,
-            boardCreatorId: localStorage.getItem("userid"),
+            boardCreatorId: userId,
         };
-        try {
-            const response = await axios.post('http://localhost:8080/create-board', newBoard);
-            if (response.status === 201) {
-                toggleModal();
-                setBoardName(null);
-                fetchBoards();
-            }
-        } catch (error) {
-            console.error('Error creating board:', error);
+        const response = await createBoard(newBoard);
+        if (response?.status === 201) {
+            toggleModalCreateBoard();
+            setBoardName(null);
+            await fetchBoardsData();
         }
     };
 
     const handleDeleteBoard = async (boardId) => {
-        const token = localStorage.getItem("token");
-        try {
-            const res = await axiosInstance.delete(`/delete-board`, {
-                data: {
-                    id: boardId
-                },
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            });
-            fetchBoards();
-        } catch (error) {
-            console.error('Error deleting board:', error);
+        const response = await deleteBoard(boardId);
+        if (response?.status === 200) {
+            await fetchBoardsData();
         }
     }
 
     const handleEditBoard = async () => {
-        const token = localStorage.getItem("token");
-        try {
-            const response = await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
-                {
-                    name: boardName
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
-            if (response.status === 200) {
-                toggleModalEditBoard();
-                setBoardName('');
-                fetchBoards();
-            }
-        } catch (error) {
-            console.error('Error deleting board:', error);
+        const response = await editBoard(boardToEditId, boardName);
+        if (response?.status === 200) {
+            toggleModalEditBoard();
+            setBoardName('');
         }
+        await fetchBoardsData();
     }
 
     return (
@@ -118,6 +77,7 @@ const Dashboard = () => {
                 }}
             >
                 <h1>Dashboard</h1>
+                <Button variant="primary" onClick={toggleModalCreateBoard} size="lg">Add board</Button>
                 <Form>
                     <Form.Group controlId="exampleInput" className="mb-3">
                         <Form.Control
@@ -162,8 +122,7 @@ const Dashboard = () => {
                     )}
                 </div>
             </div>
-            <Button variant="primary" onClick={toggleModal} size="lg">Add board</Button>
-            <Modal show={showModal} onHide={toggleModal}>
+            <Modal show={showModal} onHide={toggleModalCreateBoard}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Board</Modal.Title>
                 </Modal.Header>
@@ -181,7 +140,7 @@ const Dashboard = () => {
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={toggleModal}>
+                    <Button variant="secondary" onClick={toggleModalCreateBoard}>
                         Close
                     </Button>
                     <Button variant="primary" type="submit" form="boardForm" onClick={handleFormSubmit}>

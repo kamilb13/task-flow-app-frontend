@@ -9,7 +9,7 @@ const Sidebar: React.FC = () => {
                 <ul>
                     <a href="/main"><li>Home</li></a>
                     <a href="/"><li>Add board</li></a>
-                    <a href="/"><li>List of your projects</li></a>
+                    <a href="/main/other"><li>List of your projects</li></a>
                     <a href="/"><li>Log out</li></a>
                 </ul>
             </div>

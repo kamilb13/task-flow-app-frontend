@@ -1,8 +1,8 @@
 import React, {useState, FormEvent} from 'react';
 import {Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import {login} from "../../api/login.tsx";
 import axios from "axios";
-import axiosInstance from "../../api/axiosInstance.tsx";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
@@ -17,21 +17,16 @@ const Login: React.FC = () => {
             return;
         }
         try{
-            const res = await axiosInstance.post("/login", {
-                username,
-                password,
-            });
-
-            localStorage.setItem("token", res.data.token);
-            localStorage.setItem("userid", res.data.userId);
-
-            navigate("/main");
-            setError(null);
-        }catch(error){
+            const response = await login(username, password);
+            if (response?.status === 200){
+                navigate("/main");
+            }
+        }catch (error) {
             if (axios.isAxiosError(error)) {
                 if (error.response?.status === 401) {
                     console.error("Błąd 401: Nieautoryzowany. Sprawdź login i hasło.");
                     setError("Nieprawidłowy login lub hasło.");
+                    return error;
                 } else {
                     console.error("Wystąpił inny błąd:", error.response?.status);
                 }
@@ -39,6 +34,8 @@ const Login: React.FC = () => {
                 console.error("Nieznany błąd:", error);
             }
         }
+
+
     };
 
     return (
