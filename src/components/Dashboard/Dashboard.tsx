@@ -23,6 +23,11 @@ const Dashboard: React.FC = () => {
         fetchBoardsData();
     }, []);
 
+    const fetchBoardsData = async () => {
+        const boards = await fetchBoards();
+        setBoards(boards);
+    };
+
     const toggleModalCreateBoard = () => {
         setShowModal((prev) => !prev);
     };
@@ -33,11 +38,6 @@ const Dashboard: React.FC = () => {
 
     const toggleModalAvatar = () => {
         setShowModalAvatar((prev) => !prev);
-    };
-
-    const fetchBoardsData = async () => {
-        const boards = await fetchBoards();
-        setBoards(boards);
     };
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -248,7 +248,7 @@ const Dashboard: React.FC = () => {
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s ease, box-shadow 0.3s',
                                 }}
-                                onClick={() => navigate(`/board/${board.id}`)}
+                                onClick={() => navigate('/main/tasks', { state: { boardId: board.id } })}
 
                                 onMouseEnter={(e) => {
                                     e.currentTarget.style.backgroundColor = '#f0f0f0'

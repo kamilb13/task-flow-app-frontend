@@ -1,5 +1,4 @@
 import axiosInstance from "./axiosInstance.tsx";
-import axios from "axios";
 
 export const fetchBoards = async () => {
     try {
@@ -19,7 +18,7 @@ export const fetchBoards = async () => {
 
 export const createBoard = async (newBoard) => {
     try {
-        return await axios.post('http://localhost:8080/create-board', newBoard);
+        return await axiosInstance.post('/create-board', newBoard);
     } catch (error) {
         console.error('Error creating board:', error);
     }
