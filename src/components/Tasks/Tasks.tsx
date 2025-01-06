@@ -2,7 +2,7 @@ import React, {useState, useEffect} from 'react';
 import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks} from "../../api/tasks.tsx";
 import {useLocation} from "react-router-dom";
 import {Button, Form, FormCheck, FormControl, FormGroup, Modal, ModalTitle} from "react-bootstrap";
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
 
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
@@ -67,19 +67,14 @@ const Tasks = () => {
         }
         const response = await createTask(newTask);
         if (response?.status === 201) {
-            // console.log("Add task!" + taskName);
+
+            console.log("Add task!" + JSON.stringify(response.data));
             toggleModalAddTask();
             setTaskName('');
             setTaskDescription('');
             fetchTasksData();
         }
     }
-
-    const handleChangeStatus = () => {
-
-    }
-
-
 
     if (loading) return <h2>Loading tasks...</h2>;
 
@@ -118,43 +113,273 @@ const Tasks = () => {
     const handelEditTask = async () => {
         try {
             const response = await editTasks(taskToEditId, taskName, taskDescription, boardId);
+            if(response?.status === 200) {
+                toggleModalEditTask();
+                setTaskName('');
+                setTaskDescription('');
+                fetchTasksData();
+            }
         } catch (e) {
             console.log(e.message);
         }
-    }
+    };
+
+    const onDragEnd = (result) => {
+        const { destination, source } = result;
+        if (!destination) return;
+
+        if (destination.droppableId === source.droppableId && destination.index === source.index) {
+            return;
+        }
+
+        const updatedTasks = [...tasks];
+        const [movedTask] = updatedTasks.splice(source.index, 1);
+        movedTask.status = destination.droppableId;
+
+        updatedTasks.splice(destination.index, 0, movedTask);
+        // setTasks(updatedTasks);
+
+        console.log(movedTask.id, movedTask.status)
+        changeTaskStatus(movedTask.id, movedTask.status);
+    };
 
     return (
         <div>
-            <h1>Tasks</h1>
-            <Button variant="primary" onClick={toggleModalAddTask}>Add task</Button>
-            {tasks.length > 0 ? (
-                <ul>
-                    {tasks.map((task) => (
-                        <li key={task.id}>
-                            {task.id}, {task.title}, {task.description}, {task.status}
-                            <Button onClick={() => handelDeleteTask(task.id)}>
-                                Delete task
-                            </Button>
-                            <Button onClick={() => {
-                                toggleModalEditTask();
-                                setTaskName(task.title);
-                                setTaskDescription(task.description);
-                                setTaskToEditId(task.id);
-                            }}>
-                                Edit task
-                            </Button>
-                            <Button onClick={() => {
-                                toggleModalChange();
-                                setTaskIdToChangeStatus(task.id);
-                            }}>
-                                Change Status
-                            </Button>
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <h3>No tasks found</h3>
-            )}
+            <h1 className="mb-4">Tasks</h1>
+            <Button variant="primary" onClick={toggleModalAddTask} className="mb-4">Add Task</Button>
+
+            {/*<div className="container">*/}
+            {/*    <div className="row">*/}
+            {/*        /!* TO_DO Section *!/*/}
+            {/*        <div className="col-md-4">*/}
+            {/*            {tasks.filter(task => task.status === 'TO_DO').length > 0 ? (*/}
+            {/*                <div className="card mb-4">*/}
+            {/*                    <div className="card-body">*/}
+            {/*                        <h2 className="card-title text-center">TODO</h2>*/}
+            {/*                        <ul className="list-group">*/}
+            {/*                            {tasks.filter(task => task.status === 'TO_DO').map(task => (*/}
+            {/*                                <li key={task.id}*/}
+            {/*                                    className="list-group-item d-flex justify-content-between align-items-center">*/}
+            {/*                                    <div>*/}
+            {/*                                        <strong>{task.title}</strong>*/}
+            {/*                                        <p>{task.description}</p>*/}
+            {/*                                    </div>*/}
+            {/*                                    <div>*/}
+            {/*                                        <Button variant="danger" size="sm"*/}
+            {/*                                                onClick={() => handelDeleteTask(task.id)}*/}
+            {/*                                                className="mr-2">Delete</Button>*/}
+            {/*                                        <Button variant="warning" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalEditTask();*/}
+            {/*                                            setTaskName(task.title);*/}
+            {/*                                            setTaskDescription(task.description);*/}
+            {/*                                            setTaskToEditId(task.id);*/}
+            {/*                                        }} className="mr-2">Edit</Button>*/}
+            {/*                                        <Button variant="info" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalChange();*/}
+            {/*                                            setTaskIdToChangeStatus(task.id);*/}
+            {/*                                        }}>Change Status</Button>*/}
+            {/*                                    </div>*/}
+            {/*                                </li>*/}
+            {/*                            ))}*/}
+            {/*                        </ul>*/}
+            {/*                    </div>*/}
+            {/*                </div>*/}
+            {/*            ) : (*/}
+            {/*                <h3>No TODO tasks found</h3>*/}
+            {/*            )}*/}
+            {/*        </div>*/}
+
+            {/*        /!* IN_PROGRESS Section *!/*/}
+            {/*        <div className="col-md-4">*/}
+            {/*            {tasks.filter(task => task.status === 'IN_PROGRESS').length > 0 ? (*/}
+            {/*                <div className="card mb-4">*/}
+            {/*                    <div className="card-body">*/}
+            {/*                        <h2 className="card-title text-center">IN PROGRESS</h2>*/}
+            {/*                        <ul className="list-group">*/}
+            {/*                            {tasks.filter(task => task.status === 'IN_PROGRESS').map(task => (*/}
+            {/*                                <li key={task.id}*/}
+            {/*                                    className="list-group-item d-flex justify-content-between align-items-center">*/}
+            {/*                                    <div>*/}
+            {/*                                        <strong>{task.title}</strong>*/}
+            {/*                                        <p>{task.description}</p>*/}
+            {/*                                    </div>*/}
+            {/*                                    <div>*/}
+            {/*                                        <Button variant="danger" size="sm"*/}
+            {/*                                                onClick={() => handelDeleteTask(task.id)}*/}
+            {/*                                                className="mr-2">Delete</Button>*/}
+            {/*                                        <Button variant="warning" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalEditTask();*/}
+            {/*                                            setTaskName(task.title);*/}
+            {/*                                            setTaskDescription(task.description);*/}
+            {/*                                            setTaskToEditId(task.id);*/}
+            {/*                                        }} className="mr-2">Edit</Button>*/}
+            {/*                                        <Button variant="info" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalChange();*/}
+            {/*                                            setTaskIdToChangeStatus(task.id);*/}
+            {/*                                        }}>Change Status</Button>*/}
+            {/*                                    </div>*/}
+            {/*                                </li>*/}
+            {/*                            ))}*/}
+            {/*                        </ul>*/}
+            {/*                    </div>*/}
+            {/*                </div>*/}
+            {/*            ) : (*/}
+            {/*                <h3>No IN PROGRESS tasks found</h3>*/}
+            {/*            )}*/}
+            {/*        </div>*/}
+
+            {/*        /!* COMPLETED Section *!/*/}
+            {/*        <div className="col-md-4">*/}
+            {/*            {tasks.filter(task => task.status === 'COMPLETED').length > 0 ? (*/}
+            {/*                <div className="card mb-4">*/}
+            {/*                    <div className="card-body">*/}
+            {/*                        <h2 className="card-title text-center">COMPLETED</h2>*/}
+            {/*                        <ul className="list-group">*/}
+            {/*                            {tasks.filter(task => task.status === 'COMPLETED').map(task => (*/}
+            {/*                                <li key={task.id}*/}
+            {/*                                    className="list-group-item d-flex justify-content-between align-items-center">*/}
+            {/*                                    <div>*/}
+            {/*                                        <strong>{task.title}</strong>*/}
+            {/*                                        <p>{task.description}</p>*/}
+            {/*                                    </div>*/}
+            {/*                                    <div>*/}
+            {/*                                        <Button variant="danger" size="sm"*/}
+            {/*                                                onClick={() => handelDeleteTask(task.id)}*/}
+            {/*                                                className="mr-2">Delete</Button>*/}
+            {/*                                        <Button variant="warning" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalEditTask();*/}
+            {/*                                            setTaskName(task.title);*/}
+            {/*                                            setTaskDescription(task.description);*/}
+            {/*                                            setTaskToEditId(task.id);*/}
+            {/*                                        }} className="mr-2">Edit</Button>*/}
+            {/*                                        <Button variant="info" size="sm" onClick={() => {*/}
+            {/*                                            toggleModalChange();*/}
+            {/*                                            setTaskIdToChangeStatus(task.id);*/}
+            {/*                                        }}>Change Status</Button>*/}
+            {/*                                    </div>*/}
+            {/*                                </li>*/}
+            {/*                            ))}*/}
+            {/*                        </ul>*/}
+            {/*                    </div>*/}
+            {/*                </div>*/}
+            {/*            ) : (*/}
+            {/*                <h3>No COMPLETED tasks found</h3>*/}
+            {/*            )}*/}
+            {/*        </div>*/}
+            {/*    </div>*/}
+            {/*</div>*/}
+            <DragDropContext onDragEnd={onDragEnd}>
+                <div className="container">
+                    <div className="row">
+                        {/* TO_DO Section */}
+                        <Droppable droppableId="TO_DO" type="task">
+                            {(provided) => (
+                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
+                                    <h2 className="text-center">TO DO</h2>
+                                    {tasks.filter(task => task.status === 'TO_DO').map((task, index) => (
+                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                            {(provided) => {
+                                                console.log("Draggable task.id:", task);
+                                                console.log("Draggable task.id:", task.id);
+                                                return (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        {...provided.dragHandleProps}
+                                                        className="card mb-4"
+                                                    >
+                                                        <div className="card-body">
+                                                            <strong>{task.title}</strong>
+                                                            <p>{task.id}</p>
+                                                            <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
+                                                            <Button variant="warning" size="sm" onClick={() => {
+                                                                setTaskName(task.title);
+                                                                setTaskDescription(task.description);
+                                                                setTaskToEditId(task.id);
+                                                                setTaskEditModal(true);
+                                                            }} className="mr-2">Edit</Button>
+                                                        </div>
+                                                    </div>
+                                                );
+                                            }}
+                                        </Draggable>
+
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+
+                        {/* IN_PROGRESS Section */}
+                        <Droppable droppableId="IN_PROGRESS" type="task">
+                            {(provided) => (
+                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
+                                    <h2 className="text-center">IN PROGRESS</h2>
+                                    {tasks.filter(task => task.status === 'IN_PROGRESS').map((task, index) => (
+                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="card mb-4"
+                                                >
+                                                    <div className="card-body">
+                                                        <strong>{task.title}</strong>
+                                                        <p>{task.description}</p>
+                                                        <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
+                                                        <Button variant="warning" size="sm" onClick={() => {
+                                                            setTaskName(task.title);
+                                                            setTaskDescription(task.description);
+                                                            setTaskToEditId(task.id);
+                                                            setTaskEditModal(true);
+                                                        }} className="mr-2">Edit</Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+
+                        {/* COMPLETED Section */}
+                        <Droppable droppableId="COMPLETED" type="task">
+                            {(provided) => (
+                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
+                                    <h2 className="text-center">COMPLETED</h2>
+                                    {tasks.filter(task => task.status === 'COMPLETED').map((task, index) => (
+                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+                                            {(provided) => (
+                                                <div
+                                                    ref={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                    className="card mb-4"
+                                                >
+                                                    <div className="card-body">
+                                                        <strong>{task.title}</strong>
+                                                        <p>{task.description}</p>
+                                                        <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
+                                                        <Button variant="warning" size="sm" onClick={() => {
+                                                            setTaskName(task.title);
+                                                            setTaskDescription(task.description);
+                                                            setTaskToEditId(task.id);
+                                                            setTaskEditModal(true);
+                                                        }} className="mr-2">Edit</Button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </Draggable>
+                                    ))}
+                                    {provided.placeholder}
+                                </div>
+                            )}
+                        </Droppable>
+                    </div>
+                </div>
+            </DragDropContext>
             <Modal show={taskEditModal} onHide={toggleModalEditTask}>
                 <Modal.Body>
                     <Form>

@@ -223,6 +223,7 @@ const Dashboard: React.FC = () => {
                 {boards.length ? (
                     boards.map((board) => (
                         <div
+                            key={board.id}
                             style={{
                                 border: '1px solid #ddd',
                                 borderRadius: '8px',
