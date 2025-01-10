@@ -2,8 +2,6 @@ import axiosInstance from "./axiosInstance.tsx";
 
 export const createTask = async (newTask) => {
     const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userid");
-    console.log(newTask);
     try {
         return await axiosInstance.post('/create-task', newTask, {
             headers: {
@@ -16,9 +14,6 @@ export const createTask = async (newTask) => {
 }
 
 export const fetchTasks = async (boardId: number) => {
-    const token = localStorage.getItem("token");
-    const userId = localStorage.getItem("userid");
-
     try {
         return await axiosInstance.get(`/get-tasks?boardId=${boardId}`);
     } catch (e) {
@@ -28,7 +23,6 @@ export const fetchTasks = async (boardId: number) => {
 
 export const changeTaskStatus = async (taskId, newStatus) => {
     const token = localStorage.getItem("token");
-    console.log(newStatus.toUpperCase());
     try {
         return await axiosInstance.post(
             `/change-status?taskId=${taskId}&newStatus=${newStatus.toUpperCase()}`,
@@ -69,11 +63,6 @@ export const editTasks = async (taskToEditId, taskName, taskDescription, boardId
             id: boardId
         }
     }
-    console.log("----------------------");
-    console.log(editTask);
-    console.log(token);
-    console.log(taskToEditId);
-    console.log("----------------------");
     try {
         return await axiosInstance.put(`/edit-task`,
             editTask,
@@ -83,7 +72,6 @@ export const editTasks = async (taskToEditId, taskName, taskDescription, boardId
                 },
             }
         );
-        //return response;
     } catch (error) {
         console.error('Error deleting board:', error);
     }

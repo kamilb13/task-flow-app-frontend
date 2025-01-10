@@ -1,49 +1,59 @@
 import React, {useState, useEffect} from 'react';
-import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks} from "../../api/tasks.tsx";
-import {useLocation} from "react-router-dom";
-import {Button, Form, FormCheck, FormControl, FormGroup, Modal, ModalTitle} from "react-bootstrap";
-import {DragDropContext, Droppable, Draggable} from "react-beautiful-dnd";
+import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks} from '../../api/tasks.tsx';
+import {useLocation} from 'react-router-dom';
+import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-bootstrap';
+import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import './Tasks.css';
 
 const Tasks = () => {
     const [tasks, setTasks] = useState([]);
     const [loading, setLoading] = useState(true);
-    const location = useLocation();
-    const {boardId} = location.state || {};
     const [showModalAddTask, setShowModalAddTask] = useState(false);
     const [taskName, setTaskName] = useState('');
     const [taskDescription, setTaskDescription] = useState('');
-    const [status, setStatus] = useState('');
-    const [taskIdToChangeStatus, setTaskIdToChangeStatus] = useState('');
     const [taskEditModal, setTaskEditModal] = useState(false);
     const [taskToEditId, setTaskToEditId] = useState('');
+    const [taskIdToDrag, setTaskIdToDrag] = useState();
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
-    const [statusChangeModal, setStatusChangeModal] = useState(false);
-    const toggleModalChange = () => {
-        setStatusChangeModal(!statusChangeModal);
-    }
-
-    const toggleModalEditTask = () => {
-        setTaskEditModal(!taskEditModal);
-    }
+    const location = useLocation();
+    const {boardId} = location.state || {};
 
     useEffect(() => {
-        fetchTasksData();
+        // console.log(windowHeight);
+        const handleResize = () => {
+            setWindowHeight(window.innerHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [window.innerHeight]);
+
+    const getAvailableHeight = () => windowHeight - 350; // !!!
+
+    useEffect(() => {
+        fetchTasksData().then(() => console.log('Tasks fetched successfully'));
     }, []);
 
     const fetchTasksData = async () => {
         if (!boardId) {
-            console.error("boardId is not provided.");
+            console.error('boardId is not provided.');
             setLoading(false);
             return;
         }
 
         try {
             const response = await fetchTasks(boardId);
-            if (response?.status === 200) {
-                setTasks(response?.data);
+            if (response?.status === 200 && response?.data?.length) {
+                setTasks(response.data);
+            } else {
+                setTasks([]);
             }
         } catch (error) {
-            console.error("Error fetching tasks:", error);
+            console.error('Error fetching tasks:', error);
         } finally {
             setLoading(false);
         }
@@ -55,187 +65,185 @@ const Tasks = () => {
 
     const handleFormSubmit = async () => {
         if (taskName === '' || taskDescription === '') {
+            console.error('Fields cannot be empty');
             return;
         }
+
         const newTask = {
             title: taskName,
             description: taskDescription,
-            userId: localStorage.getItem("userid"),
+            userId: localStorage.getItem('userid'),
             board: {
-                id: boardId
+                id: boardId,
+            },
+        };
+
+        try {
+            const response = await createTask(newTask);
+            if (response?.status === 201) {
+                console.log('Task added successfully:', response.data);
+                toggleModalAddTask();
+                setTaskName('');
+                setTaskDescription('');
+                fetchTasksData();
             }
+        } catch (error) {
+            console.error('Error adding task:', error);
         }
-        const response = await createTask(newTask);
-        if (response?.status === 201) {
+    };
 
-            console.log("Add task!" + JSON.stringify(response.data));
-            toggleModalAddTask();
-            setTaskName('');
-            setTaskDescription('');
-            fetchTasksData();
-        }
-    }
-
-    if (loading) return <h2>Loading tasks...</h2>;
-
-    const handelDeleteTask = async (taskId) => {
+    const handleDeleteTask = async (taskId) => {
         try {
             const response = await deleteTask(taskId);
-            console.log(response?.status);
             if (response?.status === 200) {
                 fetchTasksData();
             }
         } catch (e) {
-            console.log(e.message);
+            console.error('Error deleting task:', e.message);
         }
-    }
+    };
 
-    const handelEditTask = async () => {
+    const handleEditTask = async (task) => {
+        if (!taskName || !taskDescription) {
+            console.error('Fields cannot be empty');
+            return;
+        }
+
         try {
-            const response = await editTasks(taskToEditId, taskName, taskDescription, boardId);
-            if(response?.status === 200) {
+            const response = await editTasks(task.id, taskName, taskDescription, boardId);
+            if (response?.status === 200) {
                 toggleModalEditTask();
                 setTaskName('');
                 setTaskDescription('');
                 fetchTasksData();
             }
         } catch (e) {
-            console.log(e.message);
+            console.error('Error editing task:', e.message);
         }
     };
 
-    const onDragEnd = (result) => {
-        const { destination, source } = result;
+    const toggleModalEditTask = () => {
+        setTaskEditModal((prev) => !prev);
+    };
+
+    const onDragStart = (start) => {
+        setTaskIdToDrag(start.draggableId);
+    };
+
+    const onDragEnd = async (result) => {
+        const {destination, source} = result;
         if (!destination) return;
 
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         }
 
-        const updatedTasks = [...tasks];
-        const [movedTask] = updatedTasks.splice(source.index, 1);
-        movedTask.status = destination.droppableId;
-
-        updatedTasks.splice(destination.index, 0, movedTask);
-        // setTasks(updatedTasks);
-
-        console.log(movedTask.id, movedTask.status)
-        changeTaskStatus(movedTask.id, movedTask.status);
+        try {
+            const response = await changeTaskStatus(taskIdToDrag, destination.droppableId);
+            if (response?.status === 200) {
+                fetchTasksData();
+            }
+        } catch (error) {
+            console.error('Error changing task status:', error);
+        }
     };
 
+    const renderTask = (task, index) => (
+        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
+            {(provided) => (
+                <div
+                    ref={provided.innerRef}
+                    {...provided.draggableProps}
+                    {...provided.dragHandleProps}
+                    className="card shadow-sm mb-3"
+                >
+                    <div className="card-body bg-light">
+                        <h5 className="card-title">{task.title}</h5>
+                        <p className="card-text text-muted">{task.description}</p>
+                        <div className="d-flex justify-content-between">
+                            <Button
+                                variant="warning"
+                                size="sm"
+                                onClick={() => {
+                                    setTaskName(task.title);
+                                    setTaskDescription(task.description);
+                                    setTaskToEditId(task.id);
+                                    setTaskEditModal(true);
+                                }}
+                            >
+                                Edit
+                            </Button>
+                            <Button variant="danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
+                                Delete
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </Draggable>
+    );
+
+    const renderColumn = (title, droppableId, status) => (
+        <Droppable droppableId={droppableId} type="task" key={droppableId}>
+            {(provided) => (
+                <div className="col-md-4 mb-4">
+                    <h4 className="text-center">{title}</h4>
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className="p-2 rounded"
+                        style={{minHeight: '300px'}}
+                    >
+                        {tasks
+                            .filter((task) => task.status === status)
+                            .map((task, index) => renderTask(task, index))}
+                        {provided.placeholder}
+                    </div>
+                </div>
+            )}
+        </Droppable>
+    );
+
+    if (loading) return <h2>Loading tasks...</h2>;
+
     return (
-        <div>
+        <div className="tasks">
             <h1 className="mb-4">Tasks</h1>
-            <Button variant="primary" onClick={toggleModalAddTask} className="mb-4">Add Task</Button>
-            <DragDropContext onDragEnd={onDragEnd}>
-                <div className="container">
+            <Button variant="primary" onClick={toggleModalAddTask} className="mb-4"
+                    size="lg"
+                    style={{
+                        position: 'fixed',
+                        bottom: '150px',
+                        right: '150px',
+                        borderRadius: '10px',
+                        width: '140px',
+                        height: '60px',
+                        display: 'flex',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.backgroundColor = 'lightblue';
+                        e.target.style.transform = 'scale(1.02)';
+                        e.target.style.transition = 'background-color 0.3s ease';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.backgroundColor = '';
+                        e.target.style.transform = 'scale(1.00)';
+                        e.target.style.transition = 'background-color 0.3s ease';
+                    }}>
+                Add Task
+            </Button>
+            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+                <div className="container"
+                     style={{
+                         maxHeight: getAvailableHeight(),
+                         overflowY: 'auto',
+                     }}>
                     <div className="row">
-                        {/* TO_DO Section */}
-                        <Droppable droppableId="TO_DO" type="task">
-                            {(provided) => (
-                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
-                                    <h2 className="text-center">TO DO</h2>
-                                    {tasks.filter(task => task.status === 'TO_DO').map((task, index) => (
-                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                                            {(provided) => {
-                                                console.log("Draggable task.id:", task);
-                                                console.log("Draggable task.id:", task.id);
-                                                return (
-                                                    <div
-                                                        ref={provided.innerRef}
-                                                        {...provided.draggableProps}
-                                                        {...provided.dragHandleProps}
-                                                        className="card mb-4"
-                                                    >
-                                                        <div className="card-body">
-                                                            <strong>{task.title}</strong>
-                                                            <p>{task.id}</p>
-                                                            <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
-                                                            <Button variant="warning" size="sm" onClick={() => {
-                                                                setTaskName(task.title);
-                                                                setTaskDescription(task.description);
-                                                                setTaskToEditId(task.id);
-                                                                setTaskEditModal(true);
-                                                            }} className="mr-2">Edit</Button>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            }}
-                                        </Draggable>
-
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-
-                        {/* IN_PROGRESS Section */}
-                        <Droppable droppableId="IN_PROGRESS" type="task">
-                            {(provided) => (
-                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
-                                    <h2 className="text-center">IN PROGRESS</h2>
-                                    {tasks.filter(task => task.status === 'IN_PROGRESS').map((task, index) => (
-                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    className="card mb-4"
-                                                >
-                                                    <div className="card-body">
-                                                        <strong>{task.title}</strong>
-                                                        <p>{task.description}</p>
-                                                        <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
-                                                        <Button variant="warning" size="sm" onClick={() => {
-                                                            setTaskName(task.title);
-                                                            setTaskDescription(task.description);
-                                                            setTaskToEditId(task.id);
-                                                            setTaskEditModal(true);
-                                                        }} className="mr-2">Edit</Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
-
-                        {/* COMPLETED Section */}
-                        <Droppable droppableId="COMPLETED" type="task">
-                            {(provided) => (
-                                <div className="col-md-4" ref={provided.innerRef} {...provided.droppableProps}>
-                                    <h2 className="text-center">COMPLETED</h2>
-                                    {tasks.filter(task => task.status === 'COMPLETED').map((task, index) => (
-                                        <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
-                                            {(provided) => (
-                                                <div
-                                                    ref={provided.innerRef}
-                                                    {...provided.draggableProps}
-                                                    {...provided.dragHandleProps}
-                                                    className="card mb-4"
-                                                >
-                                                    <div className="card-body">
-                                                        <strong>{task.title}</strong>
-                                                        <p>{task.description}</p>
-                                                        <Button variant="danger" size="sm" onClick={() => handelDeleteTask(task.id)} className="mr-2">Delete</Button>
-                                                        <Button variant="warning" size="sm" onClick={() => {
-                                                            setTaskName(task.title);
-                                                            setTaskDescription(task.description);
-                                                            setTaskToEditId(task.id);
-                                                            setTaskEditModal(true);
-                                                        }} className="mr-2">Edit</Button>
-                                                    </div>
-                                                </div>
-                                            )}
-                                        </Draggable>
-                                    ))}
-                                    {provided.placeholder}
-                                </div>
-                            )}
-                        </Droppable>
+                        {renderColumn('TO DO', 'TO_DO', 'TO_DO')}
+                        {renderColumn('IN PROGRESS', 'IN_PROGRESS', 'IN_PROGRESS')}
+                        {renderColumn('COMPLETED', 'COMPLETED', 'COMPLETED')}
                     </div>
                 </div>
             </DragDropContext>
@@ -247,81 +255,63 @@ const Tasks = () => {
                                 value={taskName}
                                 onChange={(e) => setTaskName(e.target.value)}
                                 type="text"
-                                placeholder="Enter new board name"
+                                placeholder="Enter new task name"
                                 required
                             />
                             <FormControl
                                 value={taskDescription}
                                 onChange={(e) => setTaskDescription(e.target.value)}
                                 type="text"
-                                placeholder="Enter new board description"
+                                placeholder="Enter new task description"
                                 required
                             />
                         </FormGroup>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={toggleModalEditTask}>Cancel</Button>
-                    <Button variant="secondary" onClick={handelEditTask}>Edit Task!</Button>
+                    <Button variant="secondary" onClick={toggleModalEditTask}>
+                        Cancel
+                    </Button>
+                    <Button variant="primary" onClick={() => handleEditTask({
+                        id: taskToEditId,
+                        title: taskName,
+                        description: taskDescription
+                    })}>
+                        Edit Task
+                    </Button>
                 </Modal.Footer>
-            </Modal>
-            <Modal show={statusChangeModal} onHide={toggleModalChange}>
-                <Modal.Body>
-                    <Form>
-                        <FormGroup>
-                            <FormCheck
-                                type="radio"
-                                label="To Do"
-                                value="to_do"
-                                checked={status === 'to_do'}
-                                onChange={handleStatusChange}
-                            />
-                            <FormCheck
-                                type="radio"
-                                label="In Progress"
-                                value="in_Progress"
-                                checked={status === 'in_Progress'}
-                                onChange={handleStatusChange}
-                            />
-                            <FormCheck
-                                type="radio"
-                                label="Completed"
-                                value="completed"
-                                checked={status === 'completed'}
-                                onChange={handleStatusChange}
-                            />
-                        </FormGroup>
-                    </Form>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={submitCheckBox}>Change status task!</Button>
-                    </Modal.Footer>
-                </Modal.Body>
             </Modal>
             <Modal show={showModalAddTask} onHide={toggleModalAddTask}>
                 <Modal.Header>
-                    <ModalTitle>Add task</ModalTitle>
+                    <ModalTitle>Add Task</ModalTitle>
                 </Modal.Header>
                 <Modal.Body>
                     <Form>
                         <FormGroup>
                             <FormControl
+                                value={taskName}
                                 onChange={(e) => setTaskName(e.target.value)}
                                 type="text"
-                                placeholder="Enter board name"
+                                placeholder="Enter task name"
                                 required
                             />
                             <FormControl
+                                value={taskDescription}
                                 onChange={(e) => setTaskDescription(e.target.value)}
                                 type="text"
-                                placeholder="Enter board description"
+                                placeholder="Enter task description"
                                 required
                             />
                         </FormGroup>
                     </Form>
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={toggleModalAddTask}>Close</Button>
-                    <Button variant="secondary" onClick={handleFormSubmit}>Add task!</Button>
+                    <Button variant="secondary" onClick={toggleModalAddTask}>
+                        Close
+                    </Button>
+                    <Button variant="primary" onClick={handleFormSubmit}>
+                        Add Task
+                    </Button>
                 </Modal.Footer>
             </Modal>
         </div>

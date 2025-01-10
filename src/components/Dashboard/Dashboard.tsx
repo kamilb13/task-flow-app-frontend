@@ -1,7 +1,8 @@
-import React, {useEffect, useRef, useState} from 'react';
-import {Modal, Button, Form, Image} from 'react-bootstrap';
+import React, {useEffect, useState} from 'react';
+import {Modal, Button, Form} from 'react-bootstrap';
 import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards';
 import {useNavigate} from "react-router-dom";
+import NavBar from "../NavBar/NavBar.tsx";
 
 interface Board {
     id: string;
@@ -13,11 +14,25 @@ const Dashboard: React.FC = () => {
     const [boards, setBoards] = useState<Board[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [boardName, setBoardName] = useState<string>('');
-    const [showModalAvatar, setShowModalAvatar] = useState<boolean>(false);
     const [showModalEditBoard, setShowModalEditBoard] = useState<boolean>(false);
     const [boardToEditId, setBoardToEditId] = useState<string | null>(null);
-    const avatarRef = useRef<HTMLDivElement | null>(null);
     const navigate = useNavigate();
+    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowHeight(window.innerHeight);
+        };
+
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+            window.removeEventListener('resize', handleResize);
+        };
+    }, [window.innerHeight]);
+
+    const getAvailableHeight = () => windowHeight - 350; // !!!
+
 
     useEffect(() => {
         fetchBoardsData();
@@ -34,10 +49,6 @@ const Dashboard: React.FC = () => {
 
     const toggleModalEditBoard = () => {
         setShowModalEditBoard((prev) => !prev);
-    };
-
-    const toggleModalAvatar = () => {
-        setShowModalAvatar((prev) => !prev);
     };
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -76,90 +87,41 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    const handleClickOutside = (event: MouseEvent) => {
-        if (avatarRef.current && !avatarRef.current.contains(event.target as Node)) {
-            setShowModalAvatar(false);
-        }
-    };
-
-    useEffect(() => {
-        document.addEventListener('mousedown', handleClickOutside);
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-        };
-    }, []);
-
     return (
         <div className="dashboard">
-            <div
+            <NavBar/>
+            <Button
+                variant="primary"
+                onClick={toggleModalCreateBoard}
+                size="lg"
                 style={{
+                    position: 'fixed',
+                    bottom: '150px',
+                    right: '150px',
+                    borderRadius: '10px',
+                    width: '140px',
+                    height: '60px',
                     display: 'flex',
-                    backgroundColor: '#f8f8f8',
-                    justifyContent: 'space-between',
+                    justifyContent: 'center',
                     alignItems: 'center',
-                    padding: '10px',
+                }}
+                onMouseEnter={(e) => {
+                    if (e.target instanceof HTMLElement) {
+                        e.target.style.backgroundColor = 'lightblue';
+                        e.target.style.transform = 'scale(1.02)';
+                        e.target.style.transition = 'background-color 0.3s ease';
+                    }
+                }}
+                onMouseLeave={(e) => {
+                    if (e.target instanceof HTMLElement) {
+                        e.target.style.backgroundColor = '';
+                        e.target.style.transform = 'scale(1.00)';
+                        e.target.style.transition = 'background-color 0.3s ease';
+                    }
                 }}
             >
-                <h1>Dashboard</h1>
-                <Button variant="primary" onClick={toggleModalCreateBoard} size="lg">
-                    Add board
-                </Button>
-                <div style={{position: 'relative'}}>
-                    <Image
-                        src="../../public/avatar.png"
-                        roundedCircle
-                        alt="Avatar"
-                        style={{width: '100px', height: '100px', cursor: 'pointer'}}
-                        onClick={toggleModalAvatar}
-                    />
-                    {showModalAvatar && (
-                        <div
-                            ref={avatarRef}
-                            style={{
-                                position: 'absolute',
-                                top: '110px',
-                                right: '0',
-                                backgroundColor: '#fff',
-                                boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                                borderRadius: '5px',
-                                padding: '10px',
-                                zIndex: 1000,
-                                width: '200px',
-                            }}
-                        >
-                            {['Profile', 'Settings'].map((item, index) => (
-                                <p
-                                    key={index}
-                                    style={{
-                                        margin: '10px 0',
-                                        cursor: 'pointer',
-                                        padding: '5px',
-                                        borderRadius: '3px',
-                                    }}
-                                    onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                                    onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                                >
-                                    {item}
-                                </p>
-                            ))}
-                            <p
-                                style={{
-                                    margin: '10px 0',
-                                    cursor: 'pointer',
-                                    color: 'red',
-                                    padding: '5px',
-                                    borderRadius: '3px',
-                                }}
-                                onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
-                                onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                                onClick={() => alert('Logged out')}
-                            >
-                                Logout
-                            </p>
-                        </div>
-                    )}
-                </div>
-            </div>
+                Add Board
+            </Button>
             <Modal show={showModal} onHide={toggleModalCreateBoard}>
                 <Modal.Header closeButton>
                     <Modal.Title>Add New Board</Modal.Title>
@@ -175,16 +137,16 @@ const Dashboard: React.FC = () => {
                                 required
                             />
                         </Form.Group>
+                        <div className="d-flex justify-content-between mt-3 ">
+                            <Button variant="secondary" onClick={toggleModalCreateBoard}>
+                                Close
+                            </Button>
+                            <Button variant="primary" type="submit">
+                                Submit
+                            </Button>
+                        </div>
                     </Form>
                 </Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={toggleModalCreateBoard}>
-                        Close
-                    </Button>
-                    <Button variant="primary" type="submit" onClick={handleFormSubmit}>
-                        Submit
-                    </Button>
-                </Modal.Footer>
             </Modal>
             <Modal show={showModalEditBoard} onHide={toggleModalEditBoard}>
                 <Modal.Header closeButton>
@@ -217,76 +179,75 @@ const Dashboard: React.FC = () => {
                 style={{
                     display: 'grid',
                     gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                    gap: '20px',
+                    gap: '5px',
+                    maxHeight: getAvailableHeight(),
+                    overflowY: 'auto',
                 }}
             >
                 {boards.length ? (
                     boards.map((board) => (
-                        <div
-                            key={board.id}
-                            style={{
-                                border: '1px solid #ddd',
-                                borderRadius: '8px',
-                                boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                padding: '15px',
-                                backgroundColor: '#f9f9f9',
-                                textAlign: 'center',
-                            }}
-                            onMouseEnter={(e) => {
-                                e.currentTarget.style.transform = 'scale(1.01)';
-                                e.currentTarget.style.boxShadow = '0 8px 16px rgba(0,0,0,0.2)';
-
-                            }}
-                            onMouseLeave={(e) => {
-                                e.currentTarget.style.transform = 'scale(1)';
-                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-                            }}
-
-                        >
+                        <>
                             <div
                                 key={board.id}
                                 style={{
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                                    padding: '10px',
+                                    backgroundColor: '#f9f9f9',
+                                    textAlign: 'center',
+                                    margin: '10px',
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s ease, box-shadow 0.3s',
                                 }}
-                                onClick={() => navigate('/main/tasks', { state: { boardId: board.id } })}
+                                onClick={(e) => {
+                                    e.currentTarget.style.transform = 'scale(0.95)';
+                                    setTimeout(() => {
+                                        navigate('/main/tasks', {state: {boardId: board.id}});
+                                    }, 250);
+                                }}
 
                                 onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#f0f0f0'
+                                    e.currentTarget.style.backgroundColor = '#f0f0f0';
+                                    e.currentTarget.style.transform = 'scale(1.02)';
                                 }}
                                 onMouseLeave={(e) => {
                                     e.currentTarget.style.backgroundColor = 'transparent'
+                                    e.currentTarget.style.transform = 'scale(1.00)';
                                 }}
                             >
                                 <h5 style={{margin: '10px 0', color: '#333'}}>Nazwa: {board.name}</h5>
                                 <p style={{margin: '5px 0', fontSize: '14px', color: '#555'}}>
                                     ID: {board.id} <br/> ID creatora: {board.boardCreatorId}
                                 </p>
-
+                                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleDeleteBoard(board.id)
+                                        }}
+                                        style={{margin: '5px'}}
+                                    >
+                                        Delete
+                                    </Button>
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            toggleModalEditBoard();
+                                            setBoardToEditId(board.id);
+                                            setBoardName(board.name);
+                                        }}
+                                        style={{margin: '5px'}}
+                                    >
+                                        Edit board
+                                    </Button>
+                                </div>
                             </div>
-                            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    onClick={() => handleDeleteBoard(board.id)}
-                                    style={{margin: '5px'}}
-                                >
-                                    Delete
-                                </Button>
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={() => {
-                                        toggleModalEditBoard();
-                                        setBoardToEditId(board.id);
-                                        setBoardName(board.name);
-                                    }}
-                                    style={{margin: '5px'}}
-                                >
-                                    Edit board
-                                </Button>
-                            </div>
-                        </div>
+                        </>
                     ))
                 ) : (
                     <p>Brak boards</p>
