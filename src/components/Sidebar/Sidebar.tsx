@@ -8,9 +8,9 @@ const Sidebar: React.FC = () => {
             <div className="sidebar">
                 <ul>
                     <a href="/main"><li>Home</li></a>
-                    <a href="/"><li>Add board</li></a>
-                    <a href="/main/other"><li>List of your projects</li></a>
-                    <a href="/"><li>Log out</li></a>
+                    <a href="/"><li>Calendar</li></a>
+                    <a href="/main/other"><li>Members</li></a>
+                    <a href="/"><li>Messages</li></a>
                 </ul>
             </div>
         </>

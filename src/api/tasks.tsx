@@ -40,7 +40,6 @@ export const changeTaskStatus = async (taskId, newStatus) => {
 
 export const deleteTask = async (taskId) => {
     const token = localStorage.getItem("token");
-    console.log(taskId);
     try {
         return await axiosInstance.delete(`/delete-task?taskId=${taskId}`, {
             headers: {

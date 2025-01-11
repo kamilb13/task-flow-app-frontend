@@ -95,7 +95,7 @@ const Register: React.FC = () => {
                         Zarejestruj się
                     </button>
                 </form>
-                <div className="mt-4">Masz konto? <Link to="/auth">Zaloguj się</Link></div>
+                <div className="mt-4">Masz konto? <Link to="/login">Zaloguj się</Link></div>
             </div>
         </div>
     );

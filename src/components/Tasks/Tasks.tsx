@@ -2,19 +2,27 @@ import React, {useState, useEffect} from 'react';
 import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks} from '../../api/tasks.tsx';
 import {useLocation} from 'react-router-dom';
 import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-bootstrap';
-import {DragDropContext, Droppable, Draggable} from 'react-beautiful-dnd';
+import { DragDropContext, Droppable, Draggable, DropResult, DragStart } from 'react-beautiful-dnd';
 import './Tasks.css';
+import NavBar from "../NavBar/NavBar.tsx";
+
+interface Task {
+    id: number;
+    title: string;
+    description: string;
+    status: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED';
+}
 
 const Tasks = () => {
-    const [tasks, setTasks] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [showModalAddTask, setShowModalAddTask] = useState(false);
-    const [taskName, setTaskName] = useState('');
-    const [taskDescription, setTaskDescription] = useState('');
-    const [taskEditModal, setTaskEditModal] = useState(false);
-    const [taskToEditId, setTaskToEditId] = useState('');
-    const [taskIdToDrag, setTaskIdToDrag] = useState();
-    const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    const [tasks, setTasks] = useState<Task[]>([]);
+    const [loading, setLoading] = useState<boolean>(true);
+    const [showModalAddTask, setShowModalAddTask] = useState<boolean>(false);
+    const [taskName, setTaskName] = useState<string>('');
+    const [taskDescription, setTaskDescription] = useState<string>('');
+    const [taskEditModal, setTaskEditModal] = useState<boolean>(false);
+    const [taskToEditId, setTaskToEditId] = useState<number | null>(null);
+    const [taskIdToDrag, setTaskIdToDrag] = useState<number | null>(null);
+    const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
     const location = useLocation();
     const {boardId} = location.state || {};
@@ -44,19 +52,13 @@ const Tasks = () => {
             setLoading(false);
             return;
         }
-
-        try {
-            const response = await fetchTasks(boardId);
-            if (response?.status === 200 && response?.data?.length) {
-                setTasks(response.data);
-            } else {
-                setTasks([]);
-            }
-        } catch (error) {
-            console.error('Error fetching tasks:', error);
-        } finally {
-            setLoading(false);
+        const response = await fetchTasks(boardId);
+        if (response?.status === 200 && response?.data?.length) {
+            setTasks(response.data);
+        } else {
+            setTasks([]);
         }
+        setLoading(false);
     };
 
     const toggleModalAddTask = () => {
@@ -92,33 +94,25 @@ const Tasks = () => {
         }
     };
 
-    const handleDeleteTask = async (taskId) => {
-        try {
-            const response = await deleteTask(taskId);
-            if (response?.status === 200) {
-                fetchTasksData();
-            }
-        } catch (e) {
-            console.error('Error deleting task:', e.message);
+    const handleDeleteTask = async (taskId: number) => {
+        const response = await deleteTask(taskId);
+        if (response?.status === 200) {
+            fetchTasksData();
         }
     };
 
-    const handleEditTask = async (task) => {
+    const handleEditTask = async (task: { id: number | null; title: string; description: string }) => {
         if (!taskName || !taskDescription) {
             console.error('Fields cannot be empty');
             return;
         }
 
-        try {
-            const response = await editTasks(task.id, taskName, taskDescription, boardId);
-            if (response?.status === 200) {
-                toggleModalEditTask();
-                setTaskName('');
-                setTaskDescription('');
-                fetchTasksData();
-            }
-        } catch (e) {
-            console.error('Error editing task:', e.message);
+        const response = await editTasks(task.id, taskName, taskDescription, boardId);
+        if (response?.status === 200) {
+            toggleModalEditTask();
+            setTaskName('');
+            setTaskDescription('');
+            fetchTasksData();
         }
     };
 
@@ -126,11 +120,11 @@ const Tasks = () => {
         setTaskEditModal((prev) => !prev);
     };
 
-    const onDragStart = (start) => {
-        setTaskIdToDrag(start.draggableId);
+    const onDragStart = (start: DragStart) => {
+        setTaskIdToDrag(Number(start.draggableId));
     };
 
-    const onDragEnd = async (result) => {
+    const onDragEnd = async (result: DropResult) => {
         const {destination, source} = result;
         if (!destination) return;
 
@@ -148,7 +142,7 @@ const Tasks = () => {
         }
     };
 
-    const renderTask = (task, index) => (
+    const renderTask = (task: Task, index: number) => (
         <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
             {(provided) => (
                 <div
@@ -183,7 +177,7 @@ const Tasks = () => {
         </Draggable>
     );
 
-    const renderColumn = (title, droppableId, status) => (
+    const renderColumn = (title: string, droppableId: any, status: string) => (
         <Droppable droppableId={droppableId} type="task" key={droppableId}>
             {(provided) => (
                 <div className="col-md-4 mb-4">
@@ -208,6 +202,7 @@ const Tasks = () => {
 
     return (
         <div className="tasks">
+            <NavBar/>
             <h1 className="mb-4">Tasks</h1>
             <Button variant="primary" onClick={toggleModalAddTask} className="mb-4"
                     size="lg"
@@ -223,14 +218,18 @@ const Tasks = () => {
                         alignItems: 'center',
                     }}
                     onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = 'lightblue';
-                        e.target.style.transform = 'scale(1.02)';
-                        e.target.style.transition = 'background-color 0.3s ease';
+                        if (e.target instanceof HTMLElement) {
+                            e.target.style.backgroundColor = 'lightblue';
+                            e.target.style.transform = 'scale(1.02)';
+                            e.target.style.transition = 'background-color 0.3s ease';
+                        }
                     }}
                     onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = '';
+                        if (e.target instanceof HTMLElement) {
+                            e.target.style.backgroundColor = '';
                         e.target.style.transform = 'scale(1.00)';
                         e.target.style.transition = 'background-color 0.3s ease';
+                        }
                     }}>
                 Add Task
             </Button>
