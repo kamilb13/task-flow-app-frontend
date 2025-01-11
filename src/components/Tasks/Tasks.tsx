@@ -216,6 +216,7 @@ const Tasks = () => {
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center',
+                        zIndex: '999'
                     }}
                     onMouseEnter={(e) => {
                         if (e.target instanceof HTMLElement) {

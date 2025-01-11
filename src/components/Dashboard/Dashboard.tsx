@@ -190,15 +190,16 @@ const Dashboard: React.FC = () => {
                             <div
                                 key={board.id}
                                 style={{
-                                    border: '1px solid #ddd',
-                                    borderRadius: '8px',
-                                    boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
-                                    padding: '10px',
-                                    backgroundColor: '#f9f9f9',
-                                    textAlign: 'center',
-                                    margin: '10px',
+                                    border: '1px solid #e0e0e0',
+                                    borderRadius: '12px',
+                                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
+                                    padding: '20px',
+                                    backgroundColor: '#ffffff',
+                                    textAlign: 'left',
+                                    margin: '15px',
                                     cursor: 'pointer',
                                     transition: 'transform 0.2s ease, box-shadow 0.3s',
+                                    maxWidth: '300px',
                                 }}
                                 onClick={(e) => {
                                     e.currentTarget.style.transform = 'scale(0.95)';
@@ -216,13 +217,31 @@ const Dashboard: React.FC = () => {
                                     e.currentTarget.style.transform = 'scale(1.00)';
                                 }}
                             >
-                                <h5 style={{margin: '10px 0', color: '#333'}}>Nazwa: {board.name}</h5>
-                                <p style={{margin: '5px 0', fontSize: '14px', color: '#555'}}>
-                                    ID: {board.id} <br/> ID creatora: {board.boardCreatorId}
+                                <h5
+                                    style={{
+                                        margin: '10px 0',
+                                        color: '#333',
+                                        fontSize: '18px',
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                    }}
+                                >
+                                    {board.name}
+                                </h5>
+                                <p style={{margin: '10px 0', fontSize: '14px', color: '#555', lineHeight: '1.6'}}>
+                                    <strong>ID:</strong> {board.id} <br/>
+                                    <strong>ID Creatora:</strong> {board.boardCreatorId} <br/>
+                                    <strong>Data utworzenia:</strong>{' '}
+                                    {board.createdAt ? new Date(board.createdAt).toLocaleString() : 'Brak'} <br/>
+                                    <strong>Przewidywana data zakończenia:</strong>{' '}
+                                    {board.estimatedEndDate
+                                        ? new Date(board.estimatedEndDate).toLocaleString()
+                                        : 'Brak'}
                                 </p>
+
                                 <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
                                     <Button
-                                        variant="danger"
+                                        variant="outline-danger"
                                         size="sm"
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -233,7 +252,7 @@ const Dashboard: React.FC = () => {
                                         Delete
                                     </Button>
                                     <Button
-                                        variant="primary"
+                                        variant="outline-primary"
                                         size="sm"
                                         onClick={(e) => {
                                             e.stopPropagation();
