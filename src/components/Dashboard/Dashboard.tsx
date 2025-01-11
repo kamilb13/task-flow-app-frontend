@@ -3,6 +3,9 @@ import {Modal, Button, Form} from 'react-bootstrap';
 import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards';
 import {useNavigate} from "react-router-dom";
 import NavBar from "../NavBar/NavBar.tsx";
+import DeleteButton from "../DeleteButton/DeleteButton.tsx";
+import EditButton from "../EditButton/EditButton.tsx";
+import BoardCard from "../BoardCard/BoardCard.tsx";
 
 interface Board {
     id: string;
@@ -186,87 +189,13 @@ const Dashboard: React.FC = () => {
             >
                 {boards.length ? (
                     boards.map((board) => (
-                        <>
-                            <div
-                                key={board.id}
-                                style={{
-                                    border: '1px solid #e0e0e0',
-                                    borderRadius: '12px',
-                                    boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
-                                    padding: '20px',
-                                    backgroundColor: '#ffffff',
-                                    textAlign: 'left',
-                                    margin: '15px',
-                                    cursor: 'pointer',
-                                    transition: 'transform 0.2s ease, box-shadow 0.3s',
-                                    maxWidth: '300px',
-                                }}
-                                onClick={(e) => {
-                                    e.currentTarget.style.transform = 'scale(0.95)';
-                                    setTimeout(() => {
-                                        navigate('/main/tasks', {state: {boardId: board.id}});
-                                    }, 250);
-                                }}
-
-                                onMouseEnter={(e) => {
-                                    e.currentTarget.style.backgroundColor = '#f0f0f0';
-                                    e.currentTarget.style.transform = 'scale(1.02)';
-                                }}
-                                onMouseLeave={(e) => {
-                                    e.currentTarget.style.backgroundColor = 'transparent'
-                                    e.currentTarget.style.transform = 'scale(1.00)';
-                                }}
-                            >
-                                <h5
-                                    style={{
-                                        margin: '10px 0',
-                                        color: '#333',
-                                        fontSize: '18px',
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                    }}
-                                >
-                                    {board.name}
-                                </h5>
-                                <p style={{margin: '10px 0', fontSize: '14px', color: '#555', lineHeight: '1.6'}}>
-                                    <strong>ID:</strong> {board.id} <br/>
-                                    <strong>ID Creatora:</strong> {board.boardCreatorId} <br/>
-                                    <strong>Data utworzenia:</strong>{' '}
-                                    {board.createdAt ? new Date(board.createdAt).toLocaleString() : 'Brak'} <br/>
-                                    <strong>Przewidywana data zakończenia:</strong>{' '}
-                                    {board.estimatedEndDate
-                                        ? new Date(board.estimatedEndDate).toLocaleString()
-                                        : 'Brak'}
-                                </p>
-
-                                <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                                    <Button
-                                        variant="outline-danger"
-                                        size="sm"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleDeleteBoard(board.id)
-                                        }}
-                                        style={{margin: '5px'}}
-                                    >
-                                        Delete
-                                    </Button>
-                                    <Button
-                                        variant="outline-primary"
-                                        size="sm"
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            toggleModalEditBoard();
-                                            setBoardToEditId(board.id);
-                                            setBoardName(board.name);
-                                        }}
-                                        style={{margin: '5px'}}
-                                    >
-                                        Edit board
-                                    </Button>
-                                </div>
-                            </div>
-                        </>
+                        <BoardCard
+                            board={board}
+                            handleDeleteBoard={handleDeleteBoard}
+                            toggleModalEditBoard={toggleModalEditBoard}
+                            setBoardToEditId={setBoardToEditId}
+                            setBoardName={setBoardName}
+                        />
                     ))
                 ) : (
                     <p>Brak boards</p>

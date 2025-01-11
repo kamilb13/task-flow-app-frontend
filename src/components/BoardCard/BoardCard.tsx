@@ -1,0 +1,92 @@
+import React from 'react';
+import DeleteButton from "../DeleteButton/DeleteButton.tsx";
+import EditButton from "../EditButton/EditButton.tsx";
+import {useNavigate} from "react-router-dom";
+import {FaCalendarAlt} from 'react-icons/fa';
+
+const BoardCard = ({board, handleDeleteBoard, toggleModalEditBoard, setBoardToEditId, setBoardName}) => {
+    const navigate = useNavigate();
+
+    return (
+        <div
+            key={board.id}
+            style={{
+                border: '1px solid #e0e0e0',
+                borderRadius: '12px',
+                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
+                padding: '20px',
+                backgroundColor: '#ffffff',
+                textAlign: 'left',
+                margin: '15px',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease, box-shadow 0.3s',
+                maxWidth: '300px',
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'space-between',
+                height: '300px',
+            }}
+            onClick={(e) => {
+                e.currentTarget.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    navigate('/main/tasks', {state: {boardId: board.id}});
+                }, 250);
+            }}
+
+            onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = '#f0f0f0';
+                e.currentTarget.style.transform = 'scale(1.02)';
+            }}
+            onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent'
+                e.currentTarget.style.transform = 'scale(1.00)';
+            }}
+        >
+            <h5
+                style={{
+                    margin: '10px 0',
+                    color: '#333',
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                }}
+            >
+                {board.name}
+            </h5>
+            <div style={{marginBottom: '20px'}}>
+                <p style={{margin: '10px 0', fontSize: '14px', color: '#555', lineHeight: '1.6'}}>
+                    <strong>ID Creatora:</strong> {board.boardCreatorId} <br/>
+                    <strong>
+                        <FaCalendarAlt style={{marginRight: '5px'}}/> Data utworzenia:
+                    </strong>
+                    {board.createdAt ? (
+                        <span>{new Date(board.createdAt).toLocaleString()}</span>
+                    ) : (
+                        <span>Brak</span>
+                    )} <br/>
+                    <strong>
+                        <FaCalendarAlt style={{marginRight: '5px'}}/> Przewidywana data zakończenia:
+                    </strong>{' '}
+                    {board.estimatedEndDate ? (
+                        <span>{new Date(board.estimatedEndDate).toLocaleString()}</span>
+                    ) : (
+                        <span style={{color: '#ff6347'}}>Brak</span>
+                    )}
+                </p>
+            </div>
+
+            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
+                <DeleteButton onClick={handleDeleteBoard} boardId={board.id}/>
+                <EditButton
+                    toggleModalEditBoard={toggleModalEditBoard}
+                    setBoardToEditId={setBoardToEditId}
+                    setBoardName={setBoardName}
+                    boardId={board.id}
+                    boardName={board.name}
+                />
+            </div>
+        </div>
+    )
+}
+
+export default BoardCard;
