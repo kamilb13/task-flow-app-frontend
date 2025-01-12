@@ -3,18 +3,18 @@ import {Button} from "react-bootstrap";
 import './DeleteButton.css';
 
 interface DeleteButtonProps {
-    onClick: (boardId: number) => void;
-    boardId: number;
+    onClick: (itemId: number) => void;
+    itemId: number;
 }
 
-const DeleteButton: React.FC<DeleteButtonProps> = ({ onClick, boardId }) => {
+const DeleteButton: React.FC<DeleteButtonProps> = ({ onClick, itemId }) => {
     return(
         <Button
             variant="outline-danger"
             size="sm"
             onClick={(e) => {
                 e.stopPropagation();
-                onClick(boardId);
+                onClick(itemId);
             }}
             className="button"
         >

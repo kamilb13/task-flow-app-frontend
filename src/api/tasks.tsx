@@ -1,6 +1,11 @@
 import axiosInstance from "./axiosInstance.tsx";
 
-export const createTask = async (newTask) => {
+export const createTask = async (newTask: {
+    title: string;
+    description: string;
+    userId: string | null;
+    board: { id: any }
+}) => {
     const token = localStorage.getItem("token");
     try {
         return await axiosInstance.post('/create-task', newTask, {
@@ -21,7 +26,7 @@ export const fetchTasks = async (boardId: number) => {
     }
 }
 
-export const changeTaskStatus = async (taskId, newStatus) => {
+export const changeTaskStatus = async (taskId: number | null, newStatus: string) => {
     const token = localStorage.getItem("token");
     try {
         return await axiosInstance.post(
@@ -38,7 +43,7 @@ export const changeTaskStatus = async (taskId, newStatus) => {
     }
 }
 
-export const deleteTask = async (taskId) => {
+export const deleteTask = async (taskId: number) => {
     const token = localStorage.getItem("token");
     try {
         return await axiosInstance.delete(`/delete-task?taskId=${taskId}`, {
@@ -51,7 +56,7 @@ export const deleteTask = async (taskId) => {
     }
 }
 
-export const editTasks = async (taskToEditId, taskName, taskDescription, boardId) => {
+export const editTasks = async (taskToEditId: number | null, taskName: string, taskDescription: string, boardId: number) => {
     const token = localStorage.getItem("token");
     const editTask = {
         id: taskToEditId,

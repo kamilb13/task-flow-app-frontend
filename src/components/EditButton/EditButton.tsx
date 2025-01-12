@@ -1,16 +1,27 @@
 import React from 'react';
 import {Button} from "react-bootstrap";
 
-const EditButton = ({toggleModalEditBoard, setBoardToEditId, setBoardName, boardId, boardName}) => {
+interface EditButtonProps {
+    toggleModalEditItem: () => void;
+    setItemToEditId: (id: number) => void;
+    setItemName: (name: string) => void;
+    setItemDescription: (description: string | undefined) => void;
+    itemId: number;
+    itemName: string;
+    itemDescription: string;
+}
+
+const EditButton: React.FC<EditButtonProps> = ({toggleModalEditItem, setItemToEditId, setItemName, setItemDescription, itemId, itemName, itemDescription}) => {
     return (
         <Button
             variant="outline-primary"
             size="sm"
             onClick={(e) => {
                 e.stopPropagation();
-                toggleModalEditBoard();
-                setBoardToEditId(boardId);
-                setBoardName(boardName);
+                toggleModalEditItem();
+                setItemToEditId(itemId);
+                setItemName(itemName);
+                setItemDescription(itemDescription);
             }}
             style={{margin: '5px'}}
         >

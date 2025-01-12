@@ -4,7 +4,23 @@ import EditButton from "../EditButton/EditButton.tsx";
 import {useNavigate} from "react-router-dom";
 import {FaCalendarAlt} from 'react-icons/fa';
 
-const BoardCard = ({board, handleDeleteBoard, toggleModalEditBoard, setBoardToEditId, setBoardName}) => {
+interface Board {
+    id: number;
+    name: string;
+    boardCreatorId: number;
+    createdAt?: string;
+    estimatedEndDate?: string;
+}
+
+interface BoardCardProps {
+    board: Board;
+    handleDeleteBoard: (itemId: number) => void;
+    toggleModalEditBoard: () => void;
+    setBoardToEditId: (id: number) => void;
+    setBoardName: (name: string) => void;
+}
+
+const BoardCard: React.FC<BoardCardProps> = ({board, handleDeleteBoard, toggleModalEditBoard, setBoardToEditId, setBoardName}) => {
     const navigate = useNavigate();
 
     return (
@@ -74,15 +90,16 @@ const BoardCard = ({board, handleDeleteBoard, toggleModalEditBoard, setBoardToEd
                     )}
                 </p>
             </div>
-
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                <DeleteButton onClick={handleDeleteBoard} boardId={board.id}/>
+                <DeleteButton onClick={handleDeleteBoard} itemId={board.id}/>
                 <EditButton
-                    toggleModalEditBoard={toggleModalEditBoard}
-                    setBoardToEditId={setBoardToEditId}
-                    setBoardName={setBoardName}
-                    boardId={board.id}
-                    boardName={board.name}
+                    toggleModalEditItem={toggleModalEditBoard}
+                    setItemToEditId={setBoardToEditId}
+                    setItemName={setBoardName}
+                    setItemDescription={()=>{}}
+                    itemId={board.id}
+                    itemName={board.name}
+                    itemDescription={""}
                 />
             </div>
         </div>

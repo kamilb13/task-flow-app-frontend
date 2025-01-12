@@ -2,7 +2,11 @@ import React, {useEffect, useRef, useState} from "react";
 import {Image} from "react-bootstrap";
 import './NavBar.css';
 
-const NavBar = () => {
+interface NavBarProps {
+    headerName: string;
+}
+
+const NavBar: React.FC<NavBarProps> = ({headerName}) => {
     const [showModalAvatar, setShowModalAvatar] = useState<boolean>(false);
     const avatarRef = useRef<HTMLDivElement | null>(null);
 
@@ -25,7 +29,7 @@ const NavBar = () => {
 
     return (
         <div className="navbar">
-            <h1>Dashboard</h1>
+            <h1>{headerName}</h1>
             <div style={{position: 'relative'}}>
                 <Image
                     src="../../public/avatar.png"

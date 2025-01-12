@@ -1,16 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import {Modal, Button, Form} from 'react-bootstrap';
 import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards';
-import {useNavigate} from "react-router-dom";
 import NavBar from "../NavBar/NavBar.tsx";
-import DeleteButton from "../DeleteButton/DeleteButton.tsx";
-import EditButton from "../EditButton/EditButton.tsx";
 import BoardCard from "../BoardCard/BoardCard.tsx";
 
 interface Board {
-    id: string;
+    id: number;
     name: string;
-    boardCreatorId: string;
+    boardCreatorId: number;
+    createdAt?: string;
+    estimatedEndDate?: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -18,8 +17,8 @@ const Dashboard: React.FC = () => {
     const [showModal, setShowModal] = useState<boolean>(false);
     const [boardName, setBoardName] = useState<string>('');
     const [showModalEditBoard, setShowModalEditBoard] = useState<boolean>(false);
-    const [boardToEditId, setBoardToEditId] = useState<string | null>(null);
-    const navigate = useNavigate();
+    const [boardToEditId, setBoardToEditId] = useState<number | null>(null);
+    const [estimatedEndDate, setEstimatedEndDate] = useState<string>();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
 
     useEffect(() => {
@@ -62,6 +61,7 @@ const Dashboard: React.FC = () => {
         const newBoard = {
             name: boardName,
             boardCreatorId: userId,
+            estimatedEndDate: estimatedEndDate,
         };
 
         const response = await createBoard(newBoard);
@@ -72,7 +72,7 @@ const Dashboard: React.FC = () => {
         }
     };
 
-    const handleDeleteBoard = async (boardId: string) => {
+    const handleDeleteBoard = async (boardId: number) => {
         const response = await deleteBoard(boardId);
         if (response?.status === 200) {
             await fetchBoardsData();
@@ -92,7 +92,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard">
-            <NavBar/>
+            <NavBar headerName={"Dashboard"}/>
             <Button
                 variant="primary"
                 onClick={toggleModalCreateBoard}
@@ -138,6 +138,14 @@ const Dashboard: React.FC = () => {
                                 type="text"
                                 placeholder="Enter board name"
                                 required
+                            />
+                            <Form.Label>Estimated end date</Form.Label>
+                            <Form.Control
+                                type="datetime-local"
+                                value={estimatedEndDate}
+                                onChange={(e) => setEstimatedEndDate(e.target.value)}
+                                required
+                                placeholder="Select estimated end date"
                             />
                         </Form.Group>
                         <div className="d-flex justify-content-between mt-3 ">

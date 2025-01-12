@@ -5,6 +5,8 @@ import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-boo
 import { DragDropContext, Droppable, Draggable, DropResult, DragStart } from 'react-beautiful-dnd';
 import './Tasks.css';
 import NavBar from "../NavBar/NavBar.tsx";
+import DeleteButton from "../DeleteButton/DeleteButton.tsx";
+import EditButton from "../EditButton/EditButton.tsx";
 
 interface Task {
     id: number;
@@ -28,7 +30,6 @@ const Tasks = () => {
     const {boardId} = location.state || {};
 
     useEffect(() => {
-        // console.log(windowHeight);
         const handleResize = () => {
             setWindowHeight(window.innerHeight);
         };
@@ -155,21 +156,16 @@ const Tasks = () => {
                         <h5 className="card-title">{task.title}</h5>
                         <p className="card-text text-muted">{task.description}</p>
                         <div className="d-flex justify-content-between">
-                            <Button
-                                variant="warning"
-                                size="sm"
-                                onClick={() => {
-                                    setTaskName(task.title);
-                                    setTaskDescription(task.description);
-                                    setTaskToEditId(task.id);
-                                    setTaskEditModal(true);
-                                }}
-                            >
-                                Edit
-                            </Button>
-                            <Button variant="danger" size="sm" onClick={() => handleDeleteTask(task.id)}>
-                                Delete
-                            </Button>
+                            <EditButton
+                                toggleModalEditItem={toggleModalEditTask}
+                                setItemToEditId={setTaskToEditId}
+                                setItemName={setTaskName}
+                                setItemDescription={setTaskDescription}
+                                itemId={task.id}
+                                itemName={task.title}
+                                itemDescription={task.description}
+                            />
+                            <DeleteButton onClick={handleDeleteTask} itemId={task.id}/>
                         </div>
                     </div>
                 </div>
@@ -202,8 +198,7 @@ const Tasks = () => {
 
     return (
         <div className="tasks">
-            <NavBar/>
-            <h1 className="mb-4">Tasks</h1>
+            <NavBar headerName={"Tasks"}/>
             <Button variant="primary" onClick={toggleModalAddTask} className="mb-4"
                     size="lg"
                     style={{

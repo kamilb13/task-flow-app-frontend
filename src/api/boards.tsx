@@ -16,7 +16,11 @@ export const fetchBoards = async () => {
     }
 }
 
-export const createBoard = async (newBoard) => {
+export const createBoard = async (newBoard: {
+    name: string;
+    boardCreatorId: string | null;
+    estimatedEndDate: string | undefined
+}) => {
     try {
         return await axiosInstance.post('/create-board', newBoard);
     } catch (error) {
@@ -24,10 +28,10 @@ export const createBoard = async (newBoard) => {
     }
 }
 
-export const deleteBoard = async (boardId) => {
+export const deleteBoard = async (boardId: number) => {
     const token = localStorage.getItem("token");
     try {
-        const res = await axiosInstance.delete(`/delete-board`, {
+        return await axiosInstance.delete(`/delete-board`, {
             data: {
                 id: boardId
             },
@@ -35,16 +39,15 @@ export const deleteBoard = async (boardId) => {
                 Authorization: `Bearer ${token}`,
             }
         });
-        return res;
     } catch (error) {
         console.error('Error deleting board:', error);
     }
 }
 
-export const editBoard = async (boardToEditId, boardName) => {
+export const editBoard = async (boardToEditId: number, boardName: string) => {
     const token = localStorage.getItem("token");
     try {
-        const response = await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
+        return await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
             {
                 name: boardName
             },
@@ -54,7 +57,6 @@ export const editBoard = async (boardToEditId, boardName) => {
                 },
             }
         );
-        return response;
     } catch (error) {
         console.error('Error deleting board:', error);
     }
