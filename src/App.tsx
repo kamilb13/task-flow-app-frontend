@@ -5,8 +5,8 @@ import Register from "./pages/Register/Register.tsx";
 import HomePage from "./pages/HomePage/HomePage.tsx";
 import Dashboard from "./components/Dashboard/Dashboard.tsx";
 import Tasks from "./components/Tasks/Tasks.tsx";
+import CalendarPage from "./pages/CalendarPage/CalendarPage.tsx";
 
-const CalendarPage = () => <div>calendar Page</div>;
 const MembersPage = () => <div>members Page</div>;
 const MessagesPage = () => <div>messages Page</div>;
 

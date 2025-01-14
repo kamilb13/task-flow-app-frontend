@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks} from '../../api/tasks.tsx';
+import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks, updateTaskPositions} from '../../api/tasks.tsx';
 import {useLocation} from 'react-router-dom';
 import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable, DropResult, DragStart } from 'react-beautiful-dnd';
@@ -13,6 +13,7 @@ interface Task {
     title: string;
     description: string;
     status: 'TO_DO' | 'IN_PROGRESS' | 'COMPLETED';
+    position: number;
 }
 
 const Tasks = () => {
@@ -126,22 +127,49 @@ const Tasks = () => {
     };
 
     const onDragEnd = async (result: DropResult) => {
-        const {destination, source} = result;
+        const { destination, source } = result;
         if (!destination) return;
 
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         }
 
-        try {
-            const response = await changeTaskStatus(taskIdToDrag, destination.droppableId);
-            if (response?.status === 200) {
-                fetchTasksData();
+        const draggedTask = tasks.find((task) => task.id === Number(result.draggableId));
+        if (!draggedTask) return;
+
+        if (destination.droppableId !== source.droppableId) {
+            try {
+                await changeTaskStatus(draggedTask.id, destination.droppableId);
+                draggedTask.status = destination.droppableId;
+            } catch (error) {
+                console.error("Error changing task status:", error);
+                return;
             }
+        }
+
+        const updatedTasks = tasks
+            .filter((task) => task.status === destination.droppableId)
+            .sort((a, b) => a.position - b.position);
+
+        updatedTasks.splice(source.index, 1);
+        updatedTasks.splice(destination.index, 0, draggedTask);
+
+        updatedTasks.forEach((task, index) => {
+            task.position = index + 1;
+        });
+
+        try {
+            for (const task of updatedTasks) {
+                await updateTaskPositions(task);
+            }
+
+            await fetchTasksData();
         } catch (error) {
-            console.error('Error changing task status:', error);
+            console.error("Error updating task positions:", error);
         }
     };
+
+
 
     const renderTask = (task: Task, index: number) => (
         <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
@@ -154,6 +182,7 @@ const Tasks = () => {
                 >
                     <div className="card-body bg-light">
                         <h5 className="card-title">{task.title}</h5>
+                        <p>{task.position}</p>
                         <p className="card-text text-muted">{task.description}</p>
                         <div className="d-flex justify-content-between">
                             <EditButton
@@ -186,6 +215,7 @@ const Tasks = () => {
                     >
                         {tasks
                             .filter((task) => task.status === status)
+                            .sort((a, b) => a.position - b.position)
                             .map((task, index) => renderTask(task, index))}
                         {provided.placeholder}
                     </div>

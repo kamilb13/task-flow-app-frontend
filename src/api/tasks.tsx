@@ -80,3 +80,29 @@ export const editTasks = async (taskToEditId: number | null, taskName: string, t
         console.error('Error deleting board:', error);
     }
 }
+
+export const updateTaskPositions = async (task) => {
+    const token = localStorage.getItem("token");
+
+    try {
+        return await axiosInstance.post('/change-position', task, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+    } catch (error) {
+        console.error("Error updating task position:", error);
+        throw error;
+    }
+};
+
+
+// return await axiosInstance.post(
+//     `/change-status?taskId=${taskId}&newStatus=${newStatus.toUpperCase()}`,
+//     {},
+//     {
+//         headers: {
+//             Authorization: `Bearer ${token}`
+//         }
+//     }
+// );
