@@ -3,6 +3,8 @@ import {Modal, Button, Form} from 'react-bootstrap';
 import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards';
 import NavBar from "../NavBar/NavBar.tsx";
 import BoardCard from "../BoardCard/BoardCard.tsx";
+import {useDispatch} from "react-redux";
+import {setBoards} from "../../store/boardsSlice";
 
 interface Board {
     id: number;
@@ -13,13 +15,14 @@ interface Board {
 }
 
 const Dashboard: React.FC = () => {
-    const [boards, setBoards] = useState<Board[]>([]);
+    const [boards, setBoardsState] = useState<Board[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [boardName, setBoardName] = useState<string>('');
     const [showModalEditBoard, setShowModalEditBoard] = useState<boolean>(false);
     const [boardToEditId, setBoardToEditId] = useState<number | null>(null);
     const [estimatedEndDate, setEstimatedEndDate] = useState<string>();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    const dispatch = useDispatch();
 
     useEffect(() => {
         const handleResize = () => {
@@ -40,9 +43,20 @@ const Dashboard: React.FC = () => {
         fetchBoardsData();
     }, []);
 
+    useEffect(() => {
+        const loadBoards = async () => {
+            const boards = await fetchBoards();
+            if (boards) {
+                dispatch(setBoards(boards));
+            }
+        };
+
+        loadBoards();
+    }, [dispatch]);
+
     const fetchBoardsData = async () => {
         const boards = await fetchBoards();
-        setBoards(boards);
+        setBoardsState(boards);
     };
 
     const toggleModalCreateBoard = () => {
@@ -196,8 +210,9 @@ const Dashboard: React.FC = () => {
                 }}
             >
                 {boards.length ? (
-                    boards.map((board) => (
+                    boards.map((board, index) => (
                         <BoardCard
+                            key={index}
                             board={board}
                             handleDeleteBoard={handleDeleteBoard}
                             toggleModalEditBoard={toggleModalEditBoard}

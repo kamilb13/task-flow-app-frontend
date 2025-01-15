@@ -81,7 +81,7 @@ export const editTasks = async (taskToEditId: number | null, taskName: string, t
     }
 }
 
-export const updateTaskPositions = async (task) => {
+export const updateTaskPositions = async (task: any) => {
     const token = localStorage.getItem("token");
 
     try {
