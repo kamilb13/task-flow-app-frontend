@@ -1,8 +1,15 @@
 import React, {useState, useEffect} from 'react';
-import {changeTaskStatus, createTask, deleteTask, editTasks, fetchTasks, updateTaskPositions} from '../../api/tasks.tsx';
+import {
+    changeTaskStatus,
+    createTask,
+    deleteTask,
+    editTasks,
+    fetchTasks,
+    updateTaskPositions
+} from '../../api/tasks.tsx';
 import {useLocation} from 'react-router-dom';
 import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-bootstrap';
-import { DragDropContext, Droppable, Draggable, DropResult, DragStart } from 'react-beautiful-dnd';
+import {DragDropContext, Droppable, Draggable, DropResult, DragStart} from 'react-beautiful-dnd';
 import './Tasks.css';
 import NavBar from "../NavBar/NavBar.tsx";
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
@@ -16,6 +23,25 @@ interface Task {
     position: number;
 }
 
+const StrictModeDroppable = ({children, ...props}) => {
+    const [enabled, setEnabled] = useState(false);
+
+    useEffect(() => {
+        const animation = requestAnimationFrame(() => setEnabled(true));
+
+        return () => {
+            cancelAnimationFrame(animation);
+            setEnabled(false);
+        };
+    }, []);
+
+    if (!enabled) {
+        return null;
+    }
+
+    return <Droppable {...props}>{children}</Droppable>;
+};
+
 const Tasks = () => {
     const [tasks, setTasks] = useState<Task[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -24,7 +50,7 @@ const Tasks = () => {
     const [taskDescription, setTaskDescription] = useState<string>('');
     const [taskEditModal, setTaskEditModal] = useState<boolean>(false);
     const [taskToEditId, setTaskToEditId] = useState<number | null>(null);
-    const [taskIdToDrag, setTaskIdToDrag] = useState<number | null>(null);
+    // const [taskIdToDrag, setTaskIdToDrag] = useState<number | null>(null);
     const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
     const location = useLocation();
@@ -122,54 +148,36 @@ const Tasks = () => {
         setTaskEditModal((prev) => !prev);
     };
 
-    const onDragStart = (start: DragStart) => {
-        setTaskIdToDrag(Number(start.draggableId));
-    };
-
     const onDragEnd = async (result: DropResult) => {
-        const { destination, source } = result;
+        const {destination, source} = result;
         if (!destination) return;
-
         if (destination.droppableId === source.droppableId && destination.index === source.index) {
             return;
         }
-
-        const draggedTask = tasks.find((task) => task.id === Number(result.draggableId));
+        const draggedTask = tasks.filter((task) => {
+            return task.status === source.droppableId && task.position - 1 === source.index;
+        });
         if (!draggedTask) return;
-
         if (destination.droppableId !== source.droppableId) {
             try {
-                await changeTaskStatus(draggedTask.id, destination.droppableId);
-                draggedTask.status = destination.droppableId;
+                await changeTaskStatus(draggedTask[0].id, destination.droppableId);
+                await fetchTasksData();
             } catch (error) {
                 console.error("Error changing task status:", error);
                 return;
             }
         }
-
-        const updatedTasks = tasks
-            .filter((task) => task.status === destination.droppableId)
-            .sort((a, b) => a.position - b.position);
-
-        updatedTasks.splice(source.index, 1);
-        updatedTasks.splice(destination.index, 0, draggedTask);
-
-        updatedTasks.forEach((task, index) => {
-            task.position = index + 1;
+        const positionDestination: number = destination.index + 1;
+        const taskToUpdate = Array.isArray(draggedTask) ? draggedTask[0] : draggedTask;
+        const response = await updateTaskPositions({
+            ...taskToUpdate,
+            position: positionDestination,
+            board: { id: boardId }
         });
-
-        try {
-            for (const task of updatedTasks) {
-                await updateTaskPositions(task);
-            }
-
-            await fetchTasksData();
-        } catch (error) {
-            console.error("Error updating task positions:", error);
+        if(response?.status === 200){
+            //fetchTasksData();
         }
     };
-
-
 
     const renderTask = (task: Task, index: number) => (
         <Draggable key={task.id} draggableId={task.id.toString()} index={index}>
@@ -180,6 +188,7 @@ const Tasks = () => {
                     {...provided.dragHandleProps}
                     className="card shadow-sm mb-3"
                 >
+                    {/*TODO extract to the separate component!!!*/}
                     <div className="card-body bg-light">
                         <h5 className="card-title">{task.title}</h5>
                         <p>{task.position}</p>
@@ -203,7 +212,7 @@ const Tasks = () => {
     );
 
     const renderColumn = (title: string, droppableId: any, status: string) => (
-        <Droppable droppableId={droppableId} type="task" key={droppableId}>
+        <StrictModeDroppable droppableId={droppableId} key={droppableId}>
             {(provided) => (
                 <div className="col-md-4 mb-4">
                     <h4 className="text-center">{title}</h4>
@@ -211,7 +220,7 @@ const Tasks = () => {
                         ref={provided.innerRef}
                         {...provided.droppableProps}
                         className="p-2 rounded"
-                        style={{minHeight: '300px'}}
+                        style={{minHeight: "300px"}}
                     >
                         {tasks
                             .filter((task) => task.status === status)
@@ -221,7 +230,7 @@ const Tasks = () => {
                     </div>
                 </div>
             )}
-        </Droppable>
+        </StrictModeDroppable>
     );
 
     if (loading) return <h2>Loading tasks...</h2>;
@@ -253,13 +262,13 @@ const Tasks = () => {
                     onMouseLeave={(e) => {
                         if (e.target instanceof HTMLElement) {
                             e.target.style.backgroundColor = '';
-                        e.target.style.transform = 'scale(1.00)';
-                        e.target.style.transition = 'background-color 0.3s ease';
+                            e.target.style.transform = 'scale(1.00)';
+                            e.target.style.transition = 'background-color 0.3s ease';
                         }
                     }}>
                 Add Task
             </Button>
-            <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+            <DragDropContext onDragEnd={onDragEnd}>
                 <div className="container"
                      style={{
                          maxHeight: getAvailableHeight(),

@@ -83,7 +83,6 @@ export const editTasks = async (taskToEditId: number | null, taskName: string, t
 
 export const updateTaskPositions = async (task: any) => {
     const token = localStorage.getItem("token");
-
     try {
         return await axiosInstance.post('/change-position', task, {
             headers: {
@@ -95,14 +94,3 @@ export const updateTaskPositions = async (task: any) => {
         throw error;
     }
 };
-
-
-// return await axiosInstance.post(
-//     `/change-status?taskId=${taskId}&newStatus=${newStatus.toUpperCase()}`,
-//     {},
-//     {
-//         headers: {
-//             Authorization: `Bearer ${token}`
-//         }
-//     }
-// );
