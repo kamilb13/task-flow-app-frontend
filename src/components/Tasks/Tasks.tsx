@@ -14,6 +14,7 @@ import './Tasks.css';
 import NavBar from "../NavBar/NavBar.tsx";
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
 import EditButton from "../EditButton/EditButton.tsx";
+import TaskCard from "../TaskCard/TaskCard.tsx";
 
 interface Task {
     id: number;
@@ -188,24 +189,14 @@ const Tasks = () => {
                     {...provided.dragHandleProps}
                     className="card shadow-sm mb-3"
                 >
-                    {/*TODO extract to the separate component!!!*/}
-                    <div className="card-body bg-light">
-                        <h5 className="card-title">{task.title}</h5>
-                        <p>{task.position}</p>
-                        <p className="card-text text-muted">{task.description}</p>
-                        <div className="d-flex justify-content-between">
-                            <EditButton
-                                toggleModalEditItem={toggleModalEditTask}
-                                setItemToEditId={setTaskToEditId}
-                                setItemName={setTaskName}
-                                setItemDescription={setTaskDescription}
-                                itemId={task.id}
-                                itemName={task.title}
-                                itemDescription={task.description}
-                            />
-                            <DeleteButton onClick={handleDeleteTask} itemId={task.id}/>
-                        </div>
-                    </div>
+                    <TaskCard
+                        task={task}
+                        toggleModalEditTask={toggleModalEditTask}
+                        setTaskToEditId={setTaskToEditId}
+                        setTaskName={setTaskName}
+                        setTaskDescription={setTaskDescription}
+                        handleDeleteTask={handleDeleteTask}
+                    />
                 </div>
             )}
         </Draggable>

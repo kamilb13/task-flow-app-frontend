@@ -5,7 +5,7 @@ interface EditButtonProps {
     toggleModalEditItem: () => void;
     setItemToEditId: (id: number) => void;
     setItemName: (name: string) => void;
-    setItemDescription: (description: string | undefined) => void;
+    setItemDescription: (description: string) => void;
     itemId: number;
     itemName: string;
     itemDescription: string;
