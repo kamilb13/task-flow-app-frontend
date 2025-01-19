@@ -1,7 +1,7 @@
 import React, {useState, FormEvent} from 'react';
 import {Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
-import {login} from "../../api/auth.tsx";
+import {login} from "../../api/auth.ts";
 import axios from "axios";
 
 const Login: React.FC = () => {

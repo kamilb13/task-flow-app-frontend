@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance.tsx";
+import axiosInstance from "./axiosInstance.ts";
 
 export const fetchBoards = async () => {
     try {
@@ -61,3 +61,7 @@ export const editBoard = async (boardToEditId: number, boardName: string) => {
         console.error('Error deleting board:', error);
     }
 }
+
+// export const addUserToBoard = async () => {
+//
+// }

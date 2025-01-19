@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance.tsx";
+import axiosInstance from "./axiosInstance.ts";
 
 export const login = async (username, password) => {
     const response = await axiosInstance.post("/login", {

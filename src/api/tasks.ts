@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance.tsx";
+import axiosInstance from "./axiosInstance.ts";
 
 export const createTask = async (newTask: {
     title: string;
@@ -94,3 +94,15 @@ export const updateTaskPositions = async (task: any) => {
         throw error;
     }
 };
+
+export const addUserToBoard = async (boardId: any, userId: number) => {
+    const token = localStorage.getItem("token");
+    return await axiosInstance.put(`/add-user-to-board?userId=${userId}&boardId=${boardId}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+}

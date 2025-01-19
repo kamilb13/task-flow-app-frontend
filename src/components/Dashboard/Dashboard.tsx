@@ -1,10 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {Modal, Button, Form} from 'react-bootstrap';
-import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards';
+import {Modal, Button, Form, ListGroup} from 'react-bootstrap';
+import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards.ts';
 import NavBar from "../NavBar/NavBar.tsx";
 import BoardCard from "../BoardCard/BoardCard.tsx";
 import {useDispatch} from "react-redux";
 import {setBoards} from "../../store/boardsSlice";
+import {getUsers} from "../../api/users.ts";
+import {addUserToBoard} from "../../api/tasks.ts";
 
 interface Board {
     id: number;
@@ -14,15 +16,48 @@ interface Board {
     estimatedEndDate?: string;
 }
 
+interface User {
+    id: number;
+    username: string;
+}
+
 const Dashboard: React.FC = () => {
     const [boards, setBoardsState] = useState<Board[]>([]);
     const [showModal, setShowModal] = useState<boolean>(false);
     const [boardName, setBoardName] = useState<string>('');
     const [showModalEditBoard, setShowModalEditBoard] = useState<boolean>(false);
+    const [showModalAddUserToBoard, setShowModalAddUserToBoard] = useState<boolean>(false);
+    const [userToBoard, setUserToBoard] = useState<{ id: number; username: string } | null>(null);
     const [boardToEditId, setBoardToEditId] = useState<number | null>(null);
+    const [boardToAddUserId, setBoardToAddUserId] = useState<number | null>(null);
     const [estimatedEndDate, setEstimatedEndDate] = useState<string>();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
+    // const [showSuggestions, setShowSuggestions] = useState(true);
+
     const dispatch = useDispatch();
+
+    const [users, setUsers] = useState<User[]>([]);
+    const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+
+    useEffect(() => {
+        if (showModalAddUserToBoard) {
+            getUsers()
+                .then((response) => setUsers(response?.data))
+                .catch((err) => console.error("Błąd pobierania użytkowników:", err));
+        }
+    }, [showModalAddUserToBoard]);
+
+    useEffect(() => {
+        if (userToBoard?.username) {
+            const filtered = users.filter((user) =>
+                user.username.toLowerCase().includes(userToBoard.username.toLowerCase())
+            );
+            setFilteredUsers(filtered);
+        } else {
+            setFilteredUsers([]);
+        }
+    }, [userToBoard, users]);
+
 
     useEffect(() => {
         const handleResize = () => {
@@ -67,6 +102,11 @@ const Dashboard: React.FC = () => {
         setShowModalEditBoard((prev) => !prev);
     };
 
+    const toggleAddUserToBoard = () => {
+        setUserToBoard(null);
+        setShowModalAddUserToBoard((prev) => !prev);
+    };
+
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const userId = localStorage.getItem('userid');
@@ -103,6 +143,17 @@ const Dashboard: React.FC = () => {
             await fetchBoardsData();
         }
     };
+
+    const handleAddUserToBoard = async () => {
+        const response = await getUsers();
+        if (response?.status === 200) {
+            const response = await addUserToBoard(boardToAddUserId, userToBoard.id);
+            if (response?.status === 200) {
+                fetchBoardsData();
+                toggleAddUserToBoard();
+            }
+        }
+    }
 
     return (
         <div className="dashboard">
@@ -200,6 +251,53 @@ const Dashboard: React.FC = () => {
                     </Button>
                 </Modal.Footer>
             </Modal>
+            <Modal show={showModalAddUserToBoard} onHide={toggleAddUserToBoard}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Add user to Board</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Form>
+                        <Form.Group controlId="boardName">
+                            <Form.Label>User username</Form.Label>
+                            <Form.Control
+                                value={userToBoard?.username || ''}
+                                onChange={(e) => setUserToBoard({ id: null, username: e.target.value })}
+                                type="text"
+                                placeholder="Enter username"
+                                required
+                                autocomplete="off"
+                            />
+                        </Form.Group>
+                    </Form>
+                    {filteredUsers.length > 0 && (
+                        <ListGroup className="mt-2">
+                            {filteredUsers.map((user) => (
+                                <ListGroup.Item
+                                    key={user.id}
+                                    action
+                                    onClick={() => {
+                                        setUserToBoard({ id: user.id, username: user.username });
+                                    }}
+                                >
+                                    {user.username}
+                                </ListGroup.Item>
+                            ))}
+                        </ListGroup>
+                    )}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={toggleAddUserToBoard}>
+                        Close
+                    </Button>
+                    <Button
+                        variant="primary"
+                        type="button"
+                        onClick={() => handleAddUserToBoard()}
+                    >
+                        Add this user to Board
+                    </Button>
+                </Modal.Footer>
+            </Modal>
             <div
                 style={{
                     display: 'grid',
@@ -216,8 +314,11 @@ const Dashboard: React.FC = () => {
                             board={board}
                             handleDeleteBoard={handleDeleteBoard}
                             toggleModalEditBoard={toggleModalEditBoard}
+                            toggleAddUserToBoard={toggleAddUserToBoard}
                             setBoardToEditId={setBoardToEditId}
+                            setBoardToAddUserId={setBoardToAddUserId}
                             setBoardName={setBoardName}
+                            setUserToBoard={setUserToBoard}
                         />
                     ))
                 ) : (

@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { useSelector } from 'react-redux';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import "./CalendarPage.css";
+import NavBar from "../../components/NavBar/NavBar.tsx";
 
 interface RootState {
     boards: {
@@ -29,11 +31,15 @@ const CalendarPage: React.FC = () => {
         setMarkedDates(datesWithTitles);
     }, [boards]);
 
+    useEffect(() => {
+        console.log("boards",boards);
+        console.log("markedDates",markedDates);
+    }, [boards]);
+
     const tileContent = ({ date }: { date: Date }) => {
         const marked = markedDates.find(
             (markedDate: any) => markedDate.date.toDateString() === date.toDateString()
         );
-
         if (marked) {
             return (
                 <div className="highlight">
@@ -41,23 +47,15 @@ const CalendarPage: React.FC = () => {
                 </div>
             );
         }
-
         return null;
     };
 
     return (
-        <div>
-            <h2>Boards Calendar</h2>
-            <Calendar tileContent={tileContent} />
-            <style>
-                {`
-                    .highlight {
-                        background: #ffcc00;
-                        color: white;
-                        cursor: pointer;
-                    }
-                `}
-            </style>
+        <div className="calendarPage">
+            <NavBar headerName={"Calendar Page"} />
+            <div className="calendar">
+                <Calendar tileContent={tileContent}/>
+            </div>
         </div>
     );
 };

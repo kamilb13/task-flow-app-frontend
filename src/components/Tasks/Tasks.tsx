@@ -6,14 +6,12 @@ import {
     editTasks,
     fetchTasks,
     updateTaskPositions
-} from '../../api/tasks.tsx';
+} from '../../api/tasks.ts';
 import {useLocation} from 'react-router-dom';
 import {Button, Form, FormControl, FormGroup, Modal, ModalTitle} from 'react-bootstrap';
-import {DragDropContext, Droppable, Draggable, DropResult, DragStart} from 'react-beautiful-dnd';
+import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful-dnd';
 import './Tasks.css';
 import NavBar from "../NavBar/NavBar.tsx";
-import DeleteButton from "../DeleteButton/DeleteButton.tsx";
-import EditButton from "../EditButton/EditButton.tsx";
 import TaskCard from "../TaskCard/TaskCard.tsx";
 
 interface Task {
@@ -51,7 +49,6 @@ const Tasks = () => {
     const [taskDescription, setTaskDescription] = useState<string>('');
     const [taskEditModal, setTaskEditModal] = useState<boolean>(false);
     const [taskToEditId, setTaskToEditId] = useState<number | null>(null);
-    // const [taskIdToDrag, setTaskIdToDrag] = useState<number | null>(null);
     const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
     const location = useLocation();
@@ -176,7 +173,7 @@ const Tasks = () => {
             board: { id: boardId }
         });
         if(response?.status === 200){
-            //fetchTasksData();
+            fetchTasksData();
         }
     };
 

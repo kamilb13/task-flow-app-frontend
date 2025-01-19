@@ -1,8 +1,9 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
 import EditButton from "../EditButton/EditButton.tsx";
 import {useNavigate} from "react-router-dom";
 import {FaCalendarAlt} from 'react-icons/fa';
+import AddUser from "../AddUser/AddUser.tsx";
 
 interface Board {
     id: number;
@@ -16,11 +17,21 @@ interface BoardCardProps {
     board: Board;
     handleDeleteBoard: (itemId: number) => void;
     toggleModalEditBoard: () => void;
+    toggleAddUserToBoard: () => void;
     setBoardToEditId: (id: number) => void;
+    setBoardToAddUserId: (id: number) => void;
     setBoardName: (name: string) => void;
 }
 
-const BoardCard: React.FC<BoardCardProps> = ({board, handleDeleteBoard, toggleModalEditBoard, setBoardToEditId, setBoardName}) => {
+const BoardCard: React.FC<BoardCardProps> = ({
+                                                 board,
+                                                 handleDeleteBoard,
+                                                 toggleModalEditBoard,
+                                                 toggleAddUserToBoard,
+                                                 setBoardToEditId,
+                                                 setBoardToAddUserId,
+                                                 setBoardName
+                                             }) => {
     const navigate = useNavigate();
 
     return (
@@ -88,6 +99,14 @@ const BoardCard: React.FC<BoardCardProps> = ({board, handleDeleteBoard, toggleMo
                     ) : (
                         <span style={{color: '#ff6347'}}>Brak</span>
                     )}
+                    <strong>
+                        Użytkownicy tablicy:
+                        {board.users.map((user) => {
+                            return (
+                                <p key={user.id}>{user.username}</p>
+                            );
+                        })}
+                    </strong>
                 </p>
             </div>
             <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
@@ -96,10 +115,16 @@ const BoardCard: React.FC<BoardCardProps> = ({board, handleDeleteBoard, toggleMo
                     toggleModalEditItem={toggleModalEditBoard}
                     setItemToEditId={setBoardToEditId}
                     setItemName={setBoardName}
-                    setItemDescription={()=>{}}
+                    setItemDescription={() => {
+                    }}
                     itemId={board.id}
                     itemName={board.name}
                     itemDescription={""}
+                />
+                <AddUser
+                    toggleAddUserToBoard={toggleAddUserToBoard}
+                    setBoardToAddUserId={setBoardToAddUserId}
+                    itemId={board.id}
                 />
             </div>
         </div>
