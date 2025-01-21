@@ -1,9 +1,10 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
 import EditButton from "../EditButton/EditButton.tsx";
 import {useNavigate} from "react-router-dom";
 import {FaCalendarAlt} from 'react-icons/fa';
 import AddUser from "../AddUser/AddUser.tsx";
+import {forEach} from "react-bootstrap/ElementChildren";
 
 interface Board {
     id: number;
@@ -33,6 +34,15 @@ const BoardCard: React.FC<BoardCardProps> = ({
                                                  setBoardName
                                              }) => {
     const navigate = useNavigate();
+
+    const [boardCreator, setboardCreator] = useState(board.users.find(user => user.id === board.boardCreatorId));
+
+    useEffect(() => {
+        //console.log(board)  ;
+        //const boardCreatorId = board.boardCreatorId;
+        const user = board.users.find(user => user.id === board.boardCreatorId);
+        console.log(user);
+    }, []);
 
     return (
         <div
@@ -82,7 +92,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
             </h5>
             <div style={{marginBottom: '20px'}}>
                 <p style={{margin: '10px 0', fontSize: '14px', color: '#555', lineHeight: '1.6'}}>
-                    <strong>ID Creatora:</strong> {board.boardCreatorId} <br/>
+                    <strong>Creator username:</strong> {boardCreator.username}<br/>
                     <strong>
                         <FaCalendarAlt style={{marginRight: '5px'}}/> Data utworzenia:
                     </strong>

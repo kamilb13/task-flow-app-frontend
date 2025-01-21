@@ -39,13 +39,19 @@ const Dashboard: React.FC = () => {
     const [users, setUsers] = useState<User[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
 
+    // useEffect(() => {
+    //     if (showModalAddUserToBoard) {
+    //         getUsers()
+    //             .then((response) => setUsers(response?.data))
+    //             .catch((err) => console.error("Błąd pobierania użytkowników:", err));
+    //     }
+    // }, [showModalAddUserToBoard]);
+
     useEffect(() => {
-        if (showModalAddUserToBoard) {
-            getUsers()
-                .then((response) => setUsers(response?.data))
-                .catch((err) => console.error("Błąd pobierania użytkowników:", err));
-        }
-    }, [showModalAddUserToBoard]);
+        getUsers()
+            .then((response) => setUsers(response?.data))
+            .catch((err) => console.error("Błąd pobierania użytkowników:", err));
+    }, []);
 
     useEffect(() => {
         if (userToBoard?.username) {
@@ -319,6 +325,7 @@ const Dashboard: React.FC = () => {
                             setBoardToAddUserId={setBoardToAddUserId}
                             setBoardName={setBoardName}
                             setUserToBoard={setUserToBoard}
+                            // users={users}
                         />
                     ))
                 ) : (
