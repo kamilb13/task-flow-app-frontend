@@ -1,7 +1,7 @@
 import React from 'react';
 import EditButton from "../EditButton/EditButton.tsx";
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
-import { Dropdown } from "react-bootstrap";
+import {Button, Card, Dropdown} from "react-bootstrap";
 
 interface Task {
     id: number;
@@ -20,41 +20,42 @@ interface TaskCardProps {
     handleDeleteTask: (itemId: number) => void;
 }
 
-const TaskCard: React.FC<TaskCardProps> = ({task, toggleModalEditTask, setTaskToEditId, setTaskName, setTaskDescription, handleDeleteTask}) => {
+const TaskCard: React.FC<TaskCardProps> = ({
+                                               task,
+                                               toggleModalEditTask,
+                                               setTaskToEditId,
+                                               setTaskName,
+                                               setTaskDescription,
+                                               handleDeleteTask
+                                           }) => {
     return (
-        <div className="card-body bg-light">
-            <h5 className="card-title">{task.title}</h5>
-            <p className="card-text text-muted">Position: {task.position} Opis: {task.description}</p>
-            <div className="d-flex justify-content-between">
-                {/*<EditButton*/}
-                {/*    toggleModalEditItem={toggleModalEditTask}*/}
-                {/*    setItemToEditId={setTaskToEditId}*/}
-                {/*    setItemName={setTaskName}*/}
-                {/*    setItemDescription={setTaskDescription}*/}
-                {/*    itemId={task.id}*/}
-                {/*    itemName={task.title}*/}
-                {/*    itemDescription={task.description}*/}
-                {/*/>*/}
-                {/*<DeleteButton onClick={handleDeleteTask} itemId={task.id}/>*/}
+        <Card>
+            <Card.Body>
+                <Card.Title>{task.title}</Card.Title>
+                <Card.Text>
+                    {task.description}
+                </Card.Text>
                 <Dropdown>
-                    <Dropdown.Toggle variant="link" id="dropdown-basic" className="p-0">
-                        <span style={{ fontSize: "20px", cursor: "pointer" }}>Więcej opcji</span>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                        More options
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
                         <Dropdown.Item
-                            onClick={() => {
-
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleModalEditTask();
+                                setTaskToEditId(task.id);
+                                setTaskName(task.title);
+                                setTaskDescription(task.description);
                             }}
                         >
-                            Edit
+                            Edit task
                         </Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleDeleteTask(task.id)}>
-                            Delete
-                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleDeleteTask(task.id)}>Delete task</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
-            </div>
-        </div>
+            </Card.Body>
+        </Card>
     )
 }
 

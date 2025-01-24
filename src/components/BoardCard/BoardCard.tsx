@@ -5,6 +5,7 @@ import {useNavigate} from "react-router-dom";
 import {FaCalendarAlt} from 'react-icons/fa';
 import AddUser from "../AddUser/AddUser.tsx";
 import {forEach} from "react-bootstrap/ElementChildren";
+import {Button, Card, Dropdown} from "react-bootstrap";
 
 interface Board {
     id: number;
@@ -45,24 +46,13 @@ const BoardCard: React.FC<BoardCardProps> = ({
     }, []);
 
     return (
-        <div
-            key={board.id}
+        <Card
             style={{
-                border: '1px solid #e0e0e0',
-                borderRadius: '12px',
-                boxShadow: '0 6px 12px rgba(0, 0, 0, 0.1)',
-                padding: '20px',
-                backgroundColor: '#ffffff',
-                textAlign: 'left',
-                margin: '15px',
                 cursor: 'pointer',
-                transition: 'transform 0.2s ease, box-shadow 0.3s',
-                maxWidth: '300px',
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                height: '300px',
+                margin: '10px',
+                boxShadow: '0 3px 10px rgba(0, 0, 0, 0.1)'
             }}
+
             onClick={(e) => {
                 e.currentTarget.style.transform = 'scale(0.95)';
                 setTimeout(() => {
@@ -77,67 +67,63 @@ const BoardCard: React.FC<BoardCardProps> = ({
             onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = 'transparent'
                 e.currentTarget.style.transform = 'scale(1.00)';
-            }}
-        >
-            <h5
-                style={{
-                    margin: '10px 0',
-                    color: '#333',
-                    fontSize: '18px',
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                }}
-            >
-                {board.name}
-            </h5>
-            <div style={{marginBottom: '20px'}}>
-                <p style={{margin: '10px 0', fontSize: '14px', color: '#555', lineHeight: '1.6'}}>
-                    <strong>Creator username:</strong> {boardCreator.username}<br/>
-                    <strong>
-                        <FaCalendarAlt style={{marginRight: '5px'}}/> Data utworzenia:
-                    </strong>
-                    {board.createdAt ? (
-                        <span>{new Date(board.createdAt).toLocaleString()}</span>
-                    ) : (
-                        <span>Brak</span>
-                    )} <br/>
-                    <strong>
-                        <FaCalendarAlt style={{marginRight: '5px'}}/> Przewidywana data zakończenia:
-                    </strong>{' '}
-                    {board.estimatedEndDate ? (
-                        <span>{new Date(board.estimatedEndDate).toLocaleString()}</span>
-                    ) : (
-                        <span style={{color: '#ff6347'}}>Brak</span>
-                    )}
-                    <strong>
-                        Użytkownicy tablicy:
-                        {board.users.map((user) => {
-                            return (
-                                <p key={user.id}>{user.username}</p>
-                            );
-                        })}
-                    </strong>
-                </p>
-            </div>
-            <div style={{display: "flex", justifyContent: "space-between", alignItems: "center"}}>
-                <DeleteButton onClick={handleDeleteBoard} itemId={board.id}/>
-                <EditButton
-                    toggleModalEditItem={toggleModalEditBoard}
-                    setItemToEditId={setBoardToEditId}
-                    setItemName={setBoardName}
-                    setItemDescription={() => {
-                    }}
-                    itemId={board.id}
-                    itemName={board.name}
-                    itemDescription={""}
-                />
-                <AddUser
-                    toggleAddUserToBoard={toggleAddUserToBoard}
-                    setBoardToAddUserId={setBoardToAddUserId}
-                    itemId={board.id}
-                />
-            </div>
-        </div>
+            }}>
+            <Card.Header style={{fontSize: '0.75rem'}}>
+                <strong>
+                    <FaCalendarAlt style={{marginRight: '5px'}}/> Created at:
+                </strong>
+                {board.createdAt ? (
+                    <span> {new Date(board.createdAt).toLocaleString()}</span>
+                ) : (
+                    <span>Brak</span>
+                )} <br/>
+                <strong>
+                    <FaCalendarAlt style={{marginRight: '5px'}}/> Estimated end date:
+                </strong>{' '}
+                {board.estimatedEndDate ? (
+                    <span>{new Date(board.estimatedEndDate).toLocaleString()}</span>
+                ) : (
+                    <span style={{color: '#ff6347'}}>Brak</span>
+                )}
+            </Card.Header>
+            <Card.Body>
+                <Card.Title>{board.name}</Card.Title>
+                <Card.Text>Creator: {boardCreator.username}</Card.Text>
+                <Card.Text>
+                    Users: {board.users.map((user, index) => (
+                    <span key={user.id}>
+                        {user.username}{index < board.users.length - 1 ? ', ' : ''}
+                    </span>
+                ))}
+                </Card.Text>
+                <Dropdown
+                onClick={(e) => {
+                    e.stopPropagation();
+                }}>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
+                        More options
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                toggleModalEditBoard();
+                                setBoardToEditId(board.id);
+                                setBoardName(board.name);
+                            }}
+                        >
+                            Edit board
+                        </Dropdown.Item>
+                        <Dropdown.Item onClick={() => handleDeleteBoard(board.id)}>Delete board</Dropdown.Item>
+                        <Dropdown.Item onClick={(e) => {
+                            e.stopPropagation();
+                            toggleAddUserToBoard();
+                            setBoardToAddUserId(board.id);
+                        }}>Add user to board</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+            </Card.Body>
+        </Card>
     )
 }
 

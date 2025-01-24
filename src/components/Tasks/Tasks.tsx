@@ -203,7 +203,7 @@ const Tasks = () => {
         <StrictModeDroppable droppableId={droppableId} key={droppableId}>
             {(provided) => (
                 <div className="col-md-4 mb-4">
-                    <h4 className="text-center">{title}</h4>
+                    <h4 className="text-center mt-3">{title}</h4>
                     <div
                         ref={provided.innerRef}
                         {...provided.droppableProps}
