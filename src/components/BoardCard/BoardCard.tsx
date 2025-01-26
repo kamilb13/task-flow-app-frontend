@@ -2,10 +2,11 @@ import React, {useEffect, useState} from 'react';
 import DeleteButton from "../DeleteButton/DeleteButton.tsx";
 import EditButton from "../EditButton/EditButton.tsx";
 import {useNavigate} from "react-router-dom";
-import {FaCalendarAlt} from 'react-icons/fa';
+import {FaCalendarAlt, FaCog} from 'react-icons/fa';
 import AddUser from "../AddUser/AddUser.tsx";
 import {forEach} from "react-bootstrap/ElementChildren";
 import {Button, Card, Dropdown} from "react-bootstrap";
+import "./BoardCard.css";
 
 interface Board {
     id: number;
@@ -38,15 +39,16 @@ const BoardCard: React.FC<BoardCardProps> = ({
 
     const [boardCreator, setboardCreator] = useState(board.users.find(user => user.id === board.boardCreatorId));
 
-    useEffect(() => {
-        //console.log(board)  ;
-        //const boardCreatorId = board.boardCreatorId;
-        const user = board.users.find(user => user.id === board.boardCreatorId);
-        console.log(user);
-    }, []);
+    // useEffect(() => {
+    //     //console.log(board)  ;
+    //     //const boardCreatorId = board.boardCreatorId;
+    //     const user = board.users.find(user => user.id === board.boardCreatorId);
+    //     console.log(user);
+    // }, []);
 
     return (
         <Card
+            className="card-hover"
             style={{
                 cursor: 'pointer',
                 margin: '10px',
@@ -87,7 +89,39 @@ const BoardCard: React.FC<BoardCardProps> = ({
                 )}
             </Card.Header>
             <Card.Body>
-                <Card.Title>{board.name}</Card.Title>
+                <Card.Title style={{display: 'flex', justifyContent: 'space-between'}}>
+                    {board.name}
+                    <Dropdown
+                        key={'start'}
+                        drop={'start'}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                        }}>
+                        <Dropdown.Toggle
+                            className="gear-toggle"
+                        >
+                            <FaCog className="gear-icon" />
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleModalEditBoard();
+                                    setBoardToEditId(board.id);
+                                    setBoardName(board.name);
+                                }}
+                            >
+                                Edit board
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleDeleteBoard(board.id)}>Delete board</Dropdown.Item>
+                            <Dropdown.Item onClick={(e) => {
+                                e.stopPropagation();
+                                toggleAddUserToBoard();
+                                setBoardToAddUserId(board.id);
+                            }}>Add user to board</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Card.Title>
                 <Card.Text>Creator: {boardCreator.username}</Card.Text>
                 <Card.Text>
                     Users: {board.users.map((user, index) => (
@@ -96,32 +130,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
                     </span>
                 ))}
                 </Card.Text>
-                <Dropdown
-                onClick={(e) => {
-                    e.stopPropagation();
-                }}>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                        More options
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleModalEditBoard();
-                                setBoardToEditId(board.id);
-                                setBoardName(board.name);
-                            }}
-                        >
-                            Edit board
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleDeleteBoard(board.id)}>Delete board</Dropdown.Item>
-                        <Dropdown.Item onClick={(e) => {
-                            e.stopPropagation();
-                            toggleAddUserToBoard();
-                            setBoardToAddUserId(board.id);
-                        }}>Add user to board</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
+
             </Card.Body>
         </Card>
     )

@@ -1,0 +1,30 @@
+.dropdown-toggle::after {
+    display: none !important;
+}
+
+.dropdown-toggle::before {
+    display: none !important;
+}
+
+.gear-toggle {
+    background-color: transparent !important;
+    border-color: transparent !important;
+}
+
+.gear-icon {
+    color: transparent !important;
+}
+
+.card-hover:hover .gear-toggle {
+    border-color: #b1b1b1 !important;
+}
+
+.card-hover:hover .gear-icon {
+    color: #8a8a8a !important;
+    transition: color 0.2s ease-in-out;
+}
+
+.gear-toggle:hover {
+    background-color: #cccccc !important;
+}
+
