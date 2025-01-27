@@ -3,6 +3,7 @@ import axiosInstance from "./axiosInstance.ts";
 export const getUsers = async () => {
     try {
         const token = localStorage.getItem("token");
+        // console.log(token);
         return await axiosInstance.get("/users", {
             headers: {
                 Authorization: `Bearer ${token}`

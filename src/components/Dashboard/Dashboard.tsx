@@ -3,10 +3,11 @@ import {Modal, Button, Form, ListGroup} from 'react-bootstrap';
 import {createBoard, deleteBoard, editBoard, fetchBoards} from '../../api/boards.ts';
 import NavBar from "../NavBar/NavBar.tsx";
 import BoardCard from "../BoardCard/BoardCard.tsx";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {setBoards} from "../../store/boardsSlice";
 import {getUsers} from "../../api/users.ts";
 import {addUserToBoard} from "../../api/tasks.ts";
+import {RootState} from "../../store/store.ts";
 
 interface Board {
     id: number;
@@ -51,6 +52,14 @@ const Dashboard: React.FC = () => {
         getUsers()
             .then((response) => setUsers(response?.data))
             .catch((err) => console.error("Błąd pobierania użytkowników:", err));
+    }, []);
+
+    const user = useSelector((state: RootState) => state.user.user);
+
+    useEffect(() => {
+        if (user) {
+            console.log(`Zalogowany: ${JSON.stringify(user)}`);
+        }
     }, []);
 
     useEffect(() => {

@@ -1,7 +1,6 @@
 import React from 'react';
-import EditButton from "../EditButton/EditButton.tsx";
-import DeleteButton from "../DeleteButton/DeleteButton.tsx";
-import {Button, Card, Dropdown} from "react-bootstrap";
+import {Card, Dropdown} from "react-bootstrap";
+import './TaskCard.css';
 
 interface Task {
     id: number;
@@ -31,29 +30,37 @@ const TaskCard: React.FC<TaskCardProps> = ({
     return (
         <Card>
             <Card.Body>
-                <Card.Title>{task.title}</Card.Title>
+                <Card.Title
+                    style={{display: 'flex', justifyContent: 'space-between'}}
+                >{task.title}
+                    <Dropdown>
+                        <Dropdown.Toggle
+                            id="dropdown-basic"
+                            className="dropdown-toggle"
+                            style={{color: '#bababa', borderColor: '#bababa'}}
+                        >
+                            ...
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    toggleModalEditTask();
+                                    setTaskToEditId(task.id);
+                                    setTaskName(task.title);
+                                    setTaskDescription(task.description);
+                                }}
+                            >
+                                Edit task
+                            </Dropdown.Item>
+                            <Dropdown.Item onClick={() => handleDeleteTask(task.id)}>Delete task</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </Card.Title>
                 <Card.Text>
                     {task.description}
                 </Card.Text>
-                <Dropdown>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic">
-                        More options
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                toggleModalEditTask();
-                                setTaskToEditId(task.id);
-                                setTaskName(task.title);
-                                setTaskDescription(task.description);
-                            }}
-                        >
-                            Edit task
-                        </Dropdown.Item>
-                        <Dropdown.Item onClick={() => handleDeleteTask(task.id)}>Delete task</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
+
             </Card.Body>
         </Card>
     )

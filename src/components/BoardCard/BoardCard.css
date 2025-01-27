@@ -17,14 +17,16 @@
 
 .card-hover:hover .gear-toggle {
     border-color: #b1b1b1 !important;
+    transition: color 0.2s ease-in-out;
 }
 
 .card-hover:hover .gear-icon {
     color: #8a8a8a !important;
-    transition: color 0.2s ease-in-out;
+    transition: color 0.1s ease-in-out;
 }
 
 .gear-toggle:hover {
     background-color: #cccccc !important;
+    transition: color 0.2s ease-in-out;
 }
 

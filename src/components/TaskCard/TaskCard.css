@@ -1,0 +1,7 @@
+.dropdown-toggle {
+    background-color: transparent !important;
+}
+
+.dropdown-toggle:hover {
+    background-color: #dfdfdf !important;
+}

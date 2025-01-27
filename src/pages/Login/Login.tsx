@@ -3,12 +3,15 @@ import {Link} from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import {login} from "../../api/auth.ts";
 import axios from "axios";
+import {useDispatch} from "react-redux";
+import {setUser} from "../../store/userSlice.ts";
 
 const Login: React.FC = () => {
     const [username, setUsername] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const handleLogin = async (e: FormEvent) => {
         e.preventDefault();
@@ -20,6 +23,7 @@ const Login: React.FC = () => {
             const response = await login(username, password);
             if (response?.status === 200){
                 navigate("/main");
+                dispatch(setUser({ id: response.data.userId, username: username, token: response.data.token }));
             }
         }catch (error) {
             if (axios.isAxiosError(error)) {
