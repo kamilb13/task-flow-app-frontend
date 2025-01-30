@@ -1,12 +1,9 @@
-import React, {useEffect, useState} from 'react';
-import DeleteButton from "../DeleteButton/DeleteButton.tsx";
-import EditButton from "../EditButton/EditButton.tsx";
+import React, {useState} from 'react';
 import {useNavigate} from "react-router-dom";
 import {FaCalendarAlt, FaCog} from 'react-icons/fa';
-import AddUser from "../AddUser/AddUser.tsx";
-import {forEach} from "react-bootstrap/ElementChildren";
-import {Button, Card, Dropdown} from "react-bootstrap";
+import {Card, Dropdown} from "react-bootstrap";
 import "./BoardCard.css";
+
 
 interface Board {
     id: number;
@@ -38,13 +35,6 @@ const BoardCard: React.FC<BoardCardProps> = ({
     const navigate = useNavigate();
 
     const [boardCreator, setboardCreator] = useState(board.users.find(user => user.id === board.boardCreatorId));
-
-    // useEffect(() => {
-    //     //console.log(board)  ;
-    //     //const boardCreatorId = board.boardCreatorId;
-    //     const user = board.users.find(user => user.id === board.boardCreatorId);
-    //     console.log(user);
-    // }, []);
 
     return (
         <Card

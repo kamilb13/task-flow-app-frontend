@@ -1,16 +1,21 @@
 import axiosInstance from "./axiosInstance.ts";
 
+interface User {
+    id: number;
+    username: string;
+    token: number;
+}
+
 export const createTask = async (newTask: {
     title: string;
     description: string;
     userId: string | null;
     board: { id: any }
-}) => {
-    const token = localStorage.getItem("token");
+}, user: User) => {
     try {
         return await axiosInstance.post('/create-task', newTask, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${user.token}`
             },
         });
     } catch (error) {
@@ -26,15 +31,14 @@ export const fetchTasks = async (boardId: number) => {
     }
 }
 
-export const changeTaskStatus = async (taskId: number | null, newStatus: string) => {
-    const token = localStorage.getItem("token");
+export const changeTaskStatus = async (taskId: number | null, newStatus: string, user: User) => {
     try {
         return await axiosInstance.post(
             `/change-status?taskId=${taskId}&newStatus=${newStatus.toUpperCase()}`,
             {},
             {
                 headers: {
-                    Authorization: `Bearer ${token}`
+                    Authorization: `Bearer ${user.token}`
                 }
             }
         );
@@ -43,12 +47,11 @@ export const changeTaskStatus = async (taskId: number | null, newStatus: string)
     }
 }
 
-export const deleteTask = async (taskId: number) => {
-    const token = localStorage.getItem("token");
+export const deleteTask = async (taskId: number, user: User) => {
     try {
         return await axiosInstance.delete(`/delete-task?taskId=${taskId}`, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${user.token}`
             }
         });
     } catch (e) {
@@ -56,8 +59,7 @@ export const deleteTask = async (taskId: number) => {
     }
 }
 
-export const editTasks = async (taskToEditId: number | null, taskName: string, taskDescription: string, boardId: number) => {
-    const token = localStorage.getItem("token");
+export const editTasks = async (taskToEditId: number | null, taskName: string, taskDescription: string, boardId: number, user: User) => {
     const editTask = {
         id: taskToEditId,
         title: taskName,
@@ -72,7 +74,7 @@ export const editTasks = async (taskToEditId: number | null, taskName: string, t
             editTask,
             {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${user.token}`,
                 },
             }
         );
@@ -81,12 +83,11 @@ export const editTasks = async (taskToEditId: number | null, taskName: string, t
     }
 }
 
-export const updateTaskPositions = async (task: any) => {
-    const token = localStorage.getItem("token");
+export const updateTaskPositions = async (task: any, user: User) => {
     try {
         return await axiosInstance.post('/change-position', task, {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${user.token}`
             }
         });
     } catch (error) {
@@ -94,15 +95,3 @@ export const updateTaskPositions = async (task: any) => {
         throw error;
     }
 };
-
-export const addUserToBoard = async (boardId: any, userId: number) => {
-    const token = localStorage.getItem("token");
-    return await axiosInstance.put(`/add-user-to-board?userId=${userId}&boardId=${boardId}`,
-        {},
-        {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-        }
-    );
-}

@@ -13,6 +13,8 @@ import {DragDropContext, Droppable, Draggable, DropResult} from 'react-beautiful
 import './Tasks.css';
 import NavBar from "../NavBar/NavBar.tsx";
 import TaskCard from "../TaskCard/TaskCard.tsx";
+import {useSelector} from "react-redux";
+import {RootState} from "../../store/store.ts";
 
 interface Task {
     id: number;
@@ -53,6 +55,8 @@ const Tasks = () => {
 
     const location = useLocation();
     const {boardId} = location.state || {};
+
+    const user = useSelector((state: RootState) => state.user.user);
 
     useEffect(() => {
         const handleResize = () => {
@@ -107,7 +111,7 @@ const Tasks = () => {
         };
 
         try {
-            const response = await createTask(newTask);
+            const response = await createTask(newTask, user);
             if (response?.status === 201) {
                 console.log('Task added successfully:', response.data);
                 toggleModalAddTask();
@@ -121,7 +125,7 @@ const Tasks = () => {
     };
 
     const handleDeleteTask = async (taskId: number) => {
-        const response = await deleteTask(taskId);
+        const response = await deleteTask(taskId, user);
         if (response?.status === 200) {
             fetchTasksData();
         }
@@ -133,7 +137,7 @@ const Tasks = () => {
             return;
         }
 
-        const response = await editTasks(task.id, taskName, taskDescription, boardId);
+        const response = await editTasks(task.id, taskName, taskDescription, boardId, user);
         if (response?.status === 200) {
             toggleModalEditTask();
             setTaskName('');
@@ -158,7 +162,7 @@ const Tasks = () => {
         if (!draggedTask) return;
         if (destination.droppableId !== source.droppableId) {
             try {
-                await changeTaskStatus(draggedTask[0].id, destination.droppableId);
+                await changeTaskStatus(draggedTask[0].id, destination.droppableId, user);
                 await fetchTasksData();
             } catch (error) {
                 console.error("Error changing task status:", error);
@@ -170,9 +174,9 @@ const Tasks = () => {
         const response = await updateTaskPositions({
             ...taskToUpdate,
             position: positionDestination,
-            board: { id: boardId }
-        });
-        if(response?.status === 200){
+            board: {id: boardId}
+        }, user);
+        if (response?.status === 200) {
             fetchTasksData();
         }
     };
@@ -310,6 +314,7 @@ const Tasks = () => {
                 <Modal.Body>
                     <Form>
                         <FormGroup>
+                            <Form.Label>Task name</Form.Label>
                             <FormControl
                                 value={taskName}
                                 onChange={(e) => setTaskName(e.target.value)}
@@ -317,6 +322,7 @@ const Tasks = () => {
                                 placeholder="Enter task name"
                                 required
                             />
+                            <Form.Label>Task description</Form.Label>
                             <FormControl
                                 value={taskDescription}
                                 onChange={(e) => setTaskDescription(e.target.value)}

@@ -1,12 +1,16 @@
 import axiosInstance from "./axiosInstance.ts";
 
-export const getUsers = async () => {
+interface User {
+    id: number;
+    username: string;
+    token: number;
+}
+
+export const getUsers = async (user: User) => {
     try {
-        const token = localStorage.getItem("token");
-        // console.log(token);
         return await axiosInstance.get("/users", {
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${user.token}`
             },
         });
     } catch (e) {

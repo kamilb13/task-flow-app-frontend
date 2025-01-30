@@ -6,7 +6,7 @@ import BoardCard from "../BoardCard/BoardCard.tsx";
 import {useDispatch, useSelector} from "react-redux";
 import {setBoards} from "../../store/boardsSlice";
 import {getUsers} from "../../api/users.ts";
-import {addUserToBoard} from "../../api/tasks.ts";
+import {addUserToBoard} from "../../api/boards.ts";
 import {RootState} from "../../store/store.ts";
 
 interface Board {
@@ -49,18 +49,12 @@ const Dashboard: React.FC = () => {
     // }, [showModalAddUserToBoard]);
 
     useEffect(() => {
-        getUsers()
+        getUsers(user)
             .then((response) => setUsers(response?.data))
             .catch((err) => console.error("Błąd pobierania użytkowników:", err));
     }, []);
 
     const user = useSelector((state: RootState) => state.user.user);
-
-    useEffect(() => {
-        if (user) {
-            console.log(`Zalogowany: ${JSON.stringify(user)}`);
-        }
-    }, []);
 
     useEffect(() => {
         if (userToBoard?.username) {
@@ -95,7 +89,7 @@ const Dashboard: React.FC = () => {
 
     useEffect(() => {
         const loadBoards = async () => {
-            const boards = await fetchBoards();
+            const boards = await fetchBoards(user);
             if (boards) {
                 dispatch(setBoards(boards));
             }
@@ -105,7 +99,7 @@ const Dashboard: React.FC = () => {
     }, [dispatch]);
 
     const fetchBoardsData = async () => {
-        const boards = await fetchBoards();
+        const boards = await fetchBoards(user);
         setBoardsState(boards);
     };
 
@@ -142,7 +136,7 @@ const Dashboard: React.FC = () => {
     };
 
     const handleDeleteBoard = async (boardId: number) => {
-        const response = await deleteBoard(boardId);
+        const response = await deleteBoard(boardId, user);
         if (response?.status === 200) {
             await fetchBoardsData();
         }
@@ -151,7 +145,7 @@ const Dashboard: React.FC = () => {
     const handleEditBoard = async () => {
         if (!boardToEditId) return;
 
-        const response = await editBoard(boardToEditId, boardName);
+        const response = await editBoard(boardToEditId, boardName, user);
         if (response?.status === 200) {
             toggleModalEditBoard();
             setBoardName('');
@@ -160,9 +154,9 @@ const Dashboard: React.FC = () => {
     };
 
     const handleAddUserToBoard = async () => {
-        const response = await getUsers();
+        const response = await getUsers(user);
         if (response?.status === 200) {
-            const response = await addUserToBoard(boardToAddUserId, userToBoard.id);
+            const response = await addUserToBoard(boardToAddUserId, userToBoard.id, user);
             if (response?.status === 200) {
                 fetchBoardsData();
                 toggleAddUserToBoard();
@@ -322,7 +316,7 @@ const Dashboard: React.FC = () => {
                     overflowY: 'auto',
                 }}
             >
-                {boards.length ? (
+                {boards?.length ? (
                     boards.map((board, index) => (
                         <BoardCard
                             key={index}

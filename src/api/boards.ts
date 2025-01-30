@@ -1,13 +1,17 @@
 import axiosInstance from "./axiosInstance.ts";
 
-export const fetchBoards = async () => {
+interface User {
+    id: number;
+    username: string;
+    token: number;
+}
+
+export const fetchBoards = async (user: User) => {
     try {
-        const token = localStorage.getItem("token");
-        const userId = localStorage.getItem("userid");
         const res = await axiosInstance.get("/get-boards", {
-            params: {userId},
+            params: { userId: user.id },
             headers: {
-                Authorization: `Bearer ${token}`
+                Authorization: `Bearer ${user.token}`
             },
         });
         return res.data;
@@ -28,15 +32,14 @@ export const createBoard = async (newBoard: {
     }
 }
 
-export const deleteBoard = async (boardId: number) => {
-    const token = localStorage.getItem("token");
+export const deleteBoard = async (boardId: number, user: User) => {
     try {
         return await axiosInstance.delete(`/delete-board`, {
             data: {
                 id: boardId
             },
             headers: {
-                Authorization: `Bearer ${token}`,
+                Authorization: `Bearer ${user.token}`,
             }
         });
     } catch (error) {
@@ -44,8 +47,7 @@ export const deleteBoard = async (boardId: number) => {
     }
 }
 
-export const editBoard = async (boardToEditId: number, boardName: string) => {
-    const token = localStorage.getItem("token");
+export const editBoard = async (boardToEditId: number, boardName: string, user: User) => {
     try {
         return await axiosInstance.put(`/edit-board?boardId=${boardToEditId}`,
             {
@@ -53,7 +55,7 @@ export const editBoard = async (boardToEditId: number, boardName: string) => {
             },
             {
                 headers: {
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${user.token}`,
                 },
             }
         );
@@ -62,6 +64,13 @@ export const editBoard = async (boardToEditId: number, boardName: string) => {
     }
 }
 
-// export const addUserToBoard = async () => {
-//
-// }
+export const addUserToBoard = async (boardId: any, userId: number, user: User) => {
+    return await axiosInstance.put(`/add-user-to-board?userId=${userId}&boardId=${boardId}`,
+        {},
+        {
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
+        }
+    );
+}
