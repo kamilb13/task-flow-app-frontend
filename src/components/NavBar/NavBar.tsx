@@ -1,6 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
 import {Image} from "react-bootstrap";
 import './NavBar.css';
+import {useDispatch} from "react-redux";
+import {clearUser} from "../../store/userSlice.ts";
+import {persistor} from "../../store/store.ts";
+import {useNavigate} from "react-router-dom";
 
 interface NavBarProps {
     headerName: string;
@@ -9,6 +13,9 @@ interface NavBarProps {
 const NavBar: React.FC<NavBarProps> = ({headerName}) => {
     const [showModalAvatar, setShowModalAvatar] = useState<boolean>(false);
     const avatarRef = useRef<HTMLDivElement | null>(null);
+    const navigate = useNavigate();
+
+    const dispatch = useDispatch();
 
     const toggleModalAvatar = () => {
         setShowModalAvatar((prev) => !prev);
@@ -79,8 +86,9 @@ const NavBar: React.FC<NavBarProps> = ({headerName}) => {
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
                             onClick={() => {
-                                alert('Logged out');
-
+                                dispatch(clearUser());
+                                persistor.purge();
+                                navigate('/')
                             }}
                         >
                             Logout
