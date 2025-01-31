@@ -78,7 +78,10 @@ const NavBar: React.FC<NavBarProps> = ({headerName}) => {
                             }}
                             onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#f0f0f0')}
                             onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
-                            onClick={() => alert('Logged out')}
+                            onClick={() => {
+                                alert('Logged out');
+
+                            }}
                         >
                             Logout
                         </p>
