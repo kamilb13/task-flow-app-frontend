@@ -1,19 +1,13 @@
 import axiosInstance from "./axiosInstance.ts";
 
-export const login = async (username, password) => {
-    const response = await axiosInstance.post("/login", {
+export const login = async (username: string, password: string) => {
+    return await axiosInstance.post("/login", {
         username,
         password,
     });
-
-    //TODO into user context or something else(redux?)
-    localStorage.setItem("token", response.data.token);
-    localStorage.setItem("userid", response.data.userId);
-
-    return response;
 }
 
-export const register = async (username, password, email) => {
+export const register = async (username: string, password: string, email: string) => {
     console.log(username, password, email);
     return await axiosInstance.post("/register", {
         username,
