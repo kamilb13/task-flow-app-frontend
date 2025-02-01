@@ -2,3 +2,11 @@
     flex-grow: 1;
     background-color: #ffffff;
 }
+
+.task {
+    transition: transform 0.3s ease;
+}
+
+.task.dragging {
+    opacity: 0.5;
+}

@@ -48,7 +48,7 @@ const BoardCard: React.FC<BoardCardProps> = ({
             onClick={(e) => {
                 e.currentTarget.style.transform = 'scale(0.95)';
                 setTimeout(() => {
-                    navigate('/main/tasks', {state: {boardId: board.id}});
+                    navigate('/main/tasks', {state: {boardId: board.id, boardName: board.name}});
                 }, 250);
             }}
 

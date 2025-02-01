@@ -31,19 +31,16 @@ const CalendarPage: React.FC = () => {
         setMarkedDates(datesWithTitles);
     }, [boards]);
 
-    useEffect(() => {
-        console.log("boards",boards);
-        console.log("markedDates",markedDates);
-    }, [boards]);
-
     const tileContent = ({ date }: { date: Date }) => {
-        const marked = markedDates.find(
+        const marked = markedDates.filter(
             (markedDate: any) => markedDate.date.toDateString() === date.toDateString()
         );
-        if (marked) {
+        if (marked.length > 0) {
             return (
                 <div className="highlight">
-                    <span title={marked.title}>{marked.title}</span>
+                    {marked.map((m: any, index: number) => (
+                        <span key={index} title={m.title}>{m.title}{index < marked.length - 1 ? ', ' : ''}</span>
+                        ))}
                 </div>
             );
         }
@@ -52,7 +49,7 @@ const CalendarPage: React.FC = () => {
 
     return (
         <div className="calendarPage">
-            <NavBar headerName={"Calendar Page"} />
+            <NavBar headerName={"Calendar Page"} boardName={""} />
             <div className="calendar">
                 <Calendar tileContent={tileContent}/>
             </div>

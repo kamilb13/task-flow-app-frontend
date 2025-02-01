@@ -20,6 +20,8 @@ interface Board {
 interface User {
     id: number;
     username: string;
+    token: number;
+    avatarUrl: string;
 }
 
 const Dashboard: React.FC = () => {
@@ -33,28 +35,16 @@ const Dashboard: React.FC = () => {
     const [boardToAddUserId, setBoardToAddUserId] = useState<number | null>(null);
     const [estimatedEndDate, setEstimatedEndDate] = useState<string>();
     const [windowHeight, setWindowHeight] = useState(window.innerHeight);
-    // const [showSuggestions, setShowSuggestions] = useState(true);
-
     const dispatch = useDispatch();
-
     const [users, setUsers] = useState<User[]>([]);
     const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
-
-    // useEffect(() => {
-    //     if (showModalAddUserToBoard) {
-    //         getUsers()
-    //             .then((response) => setUsers(response?.data))
-    //             .catch((err) => console.error("Błąd pobierania użytkowników:", err));
-    //     }
-    // }, [showModalAddUserToBoard]);
+    const user: any = useSelector((state: RootState) => state.user.user);
 
     useEffect(() => {
         getUsers(user)
             .then((response) => setUsers(response?.data))
             .catch((err) => console.error("Błąd pobierania użytkowników:", err));
     }, []);
-
-    const user = useSelector((state: RootState) => state.user.user);
 
     useEffect(() => {
         if (userToBoard?.username) {
@@ -66,7 +56,6 @@ const Dashboard: React.FC = () => {
             setFilteredUsers([]);
         }
     }, [userToBoard, users]);
-
 
     useEffect(() => {
         const handleResize = () => {
@@ -166,7 +155,7 @@ const Dashboard: React.FC = () => {
 
     return (
         <div className="dashboard">
-            <NavBar headerName={"Dashboard"}/>
+            <NavBar headerName={"Dashboard"} boardName={""}/>
             <Button
                 variant="primary"
                 onClick={toggleModalCreateBoard}
@@ -327,8 +316,7 @@ const Dashboard: React.FC = () => {
                             setBoardToEditId={setBoardToEditId}
                             setBoardToAddUserId={setBoardToAddUserId}
                             setBoardName={setBoardName}
-                            setUserToBoard={setUserToBoard}
-                            // users={users}
+                            // setUserToBoard={setUserToBoard}
                         />
                     ))
                 ) : (

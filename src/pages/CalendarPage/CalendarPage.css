@@ -5,8 +5,6 @@
 
 .calendar {
     display: flex;
-    justify-content: center;
-    align-items: center;
     width: 100%;
 }
 
@@ -26,6 +24,19 @@
     transition: background-color 0.3s, transform 0.3s ease-in-out;
 }
 
+.react-calendar__tile--now {
+    background-color: #46abff;
+    margin: 0 !important;
+    padding: 0 !important;
+    color: #000000;
+    border-radius: 5px;
+}
+
+.react-calendar__tile--now:hover {
+    background-color: #108ce8 !important;
+    transform: scale(1.1);
+}
+
 .react-calendar__month-view__weekdays {
     font-weight: bold;
     font-size: 17px;
@@ -33,18 +44,16 @@
 }
 
 .highlight {
-    background: #ffcc00;
+    /*background: #574300;*/
     color: white;
     font-size: 0.8rem;
     padding: 3px 8px;
     border-radius: 8px;
-    text-align: center;
     width: 100%;
 }
 
 .highlight span {
     display: block;
     font-size: 12px;
-    text-align: center;
     white-space: nowrap;
 }

@@ -24,7 +24,7 @@ interface Task {
     position: number;
 }
 
-const StrictModeDroppable = ({children, ...props}) => {
+const StrictModeDroppable = ({children, ...props}: any) => {
     const [enabled, setEnabled] = useState(false);
 
     useEffect(() => {
@@ -54,9 +54,9 @@ const Tasks = () => {
     const [windowHeight, setWindowHeight] = useState<number>(window.innerHeight);
 
     const location = useLocation();
-    const {boardId} = location.state || {};
+    const {boardId, boardName} = location.state || {};
 
-    const user = useSelector((state: RootState) => state.user.user);
+    const user: any = useSelector((state: RootState) => state.user.user);
 
     useEffect(() => {
         const handleResize = () => {
@@ -205,7 +205,7 @@ const Tasks = () => {
 
     const renderColumn = (title: string, droppableId: any, status: string) => (
         <StrictModeDroppable droppableId={droppableId} key={droppableId}>
-            {(provided) => (
+            {(provided: any) => (
                 <div className="col-md-4 mb-4">
                     <h4 className="text-center mt-3">{title}</h4>
                     <div
@@ -229,7 +229,7 @@ const Tasks = () => {
 
     return (
         <div className="tasks">
-            <NavBar headerName={"Tasks"}/>
+            <NavBar headerName={"Tasks"} boardName={boardName}/>
             <Button variant="primary" onClick={toggleModalAddTask} className="mb-4"
                     size="lg"
                     style={{

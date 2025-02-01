@@ -10,9 +10,6 @@ import {Provider} from "react-redux";
 import {store, persistor} from "./store/store.ts";
 import {PersistGate} from "redux-persist/integration/react";
 
-const MembersPage = () => <div>members Page</div>;
-const MessagesPage = () => <div>messages Page</div>;
-
 const App: React.FC = () => {
     return (
         <Provider store={store}>
@@ -27,8 +24,6 @@ const App: React.FC = () => {
                             <Route path="dashboard" element={<Dashboard/>}/>
                             <Route path="tasks" element={<Tasks/>}/>
                             <Route path="calendar" element={<CalendarPage/>}/>
-                            <Route path="members" element={<MembersPage/>}/>
-                            <Route path="messages" element={<MessagesPage/>}/>
                         </Route>
                     </Routes>
                 </BrowserRouter>

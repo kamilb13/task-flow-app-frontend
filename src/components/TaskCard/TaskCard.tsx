@@ -32,7 +32,8 @@ const TaskCard: React.FC<TaskCardProps> = ({
             <Card.Body>
                 <Card.Title
                     style={{display: 'flex', justifyContent: 'space-between'}}
-                >{task.title}
+                >
+                    {task.title}
                     <Dropdown>
                         <Dropdown.Toggle
                             id="dropdown-basic"
@@ -60,7 +61,6 @@ const TaskCard: React.FC<TaskCardProps> = ({
                 <Card.Text>
                     {task.description}
                 </Card.Text>
-
             </Card.Body>
         </Card>
     )
