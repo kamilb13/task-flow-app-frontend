@@ -32,11 +32,6 @@
     border-radius: 5px;
 }
 
-.react-calendar__tile--now:hover {
-    background-color: #108ce8 !important;
-    transform: scale(1.1);
-}
-
 .react-calendar__month-view__weekdays {
     font-weight: bold;
     font-size: 17px;
@@ -44,8 +39,7 @@
 }
 
 .highlight {
-    /*background: #574300;*/
-    color: white;
+    color: #000000;
     font-size: 0.8rem;
     padding: 3px 8px;
     border-radius: 8px;

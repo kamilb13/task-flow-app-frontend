@@ -12,6 +12,8 @@ export const createTask = async (newTask: {
     userId: string | null;
     board: { id: any }
 }, user: User) => {
+    console.log(newTask);
+    console.log(user);
     try {
         return await axiosInstance.post('/create-task', newTask, {
             headers: {
@@ -23,9 +25,13 @@ export const createTask = async (newTask: {
     }
 }
 
-export const fetchTasks = async (boardId: number) => {
+export const fetchTasks = async (boardId: number, user: User) => {
     try {
-        return await axiosInstance.get(`/get-tasks?boardId=${boardId}`);
+        return await axiosInstance.get(`/get-tasks?boardId=${boardId}`, {
+            headers: {
+                Authorization: `Bearer ${user.token}`
+            }
+        });
     } catch (e) {
         console.error("Błąd podczas pobierania boards:", e);
     }

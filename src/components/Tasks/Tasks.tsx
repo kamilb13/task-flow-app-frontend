@@ -82,7 +82,7 @@ const Tasks = () => {
             setLoading(false);
             return;
         }
-        const response = await fetchTasks(boardId);
+        const response = await fetchTasks(boardId, user);
         if (response?.status === 200 && response?.data?.length) {
             setTasks(response.data);
         } else {
@@ -104,7 +104,7 @@ const Tasks = () => {
         const newTask = {
             title: taskName,
             description: taskDescription,
-            userId: localStorage.getItem('userid'),
+            userId: user.id,
             board: {
                 id: boardId,
             },

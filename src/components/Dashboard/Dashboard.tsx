@@ -107,16 +107,15 @@ const Dashboard: React.FC = () => {
 
     const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        const userId = localStorage.getItem('userid');
         if (!boardName) return;
 
         const newBoard = {
             name: boardName,
-            boardCreatorId: userId,
+            boardCreatorId: user.id,
             estimatedEndDate: estimatedEndDate,
         };
 
-        const response = await createBoard(newBoard);
+        const response = await createBoard(newBoard, user);
         if (response?.status === 201) {
             toggleModalCreateBoard();
             setBoardName('');

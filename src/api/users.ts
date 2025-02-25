@@ -21,7 +21,12 @@ export const getUsers = async (user: User) => {
 
 export const getAvatar = async (user: User) => {
     try {
-        return axiosInstance.get(`/get-avatar/${user.id}`, { responseType: "blob" });
+        return axiosInstance.get(`/get-avatar/${user.id}`, {
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            },
+            responseType: "blob"
+        });
     } catch (e) {
         console.error("Błąd pobierania avatara:", e)
     }

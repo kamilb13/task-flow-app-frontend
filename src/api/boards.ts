@@ -24,9 +24,14 @@ export const createBoard = async (newBoard: {
     name: string;
     boardCreatorId: string | null;
     estimatedEndDate: string | undefined
-}) => {
+}, user: User) => {
+    console.log(newBoard);
     try {
-        return await axiosInstance.post('/create-board', newBoard);
+        return await axiosInstance.post('/create-board', newBoard, {
+            headers: {
+                Authorization: `Bearer ${user.token}`,
+            }
+        });
     } catch (error) {
         console.error('Error creating board:', error);
     }
